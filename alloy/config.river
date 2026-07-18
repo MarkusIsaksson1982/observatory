@@ -1,0 +1,104 @@
+// Alloy Configuration for Observatory
+// OTLP receiver -> Mimir/Loki/Tempo pipelines
+
+// OTLP Receiver
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+  output {
+    metrics = [otelcol.processor.batch.metrics.input]
+    logs    = [otelcol.processor.batch.logs.input]
+    traces  = [otelcol.processor.batch.traces.input]
+  }
+}
+
+// Batch processor for efficiency
+otelcol.processor.batch "metrics" {
+  output {
+    metrics = [otelcol.exporter.prometheus.mimir.input]
+  }
+}
+
+otelcol.processor.batch "logs" {
+  output {
+    logs = [otelcol.exporter.loki.default.input]
+  }
+}
+
+otelcol.processor.batch "traces" {
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+// Mimir exporter (Prometheus remote write)
+otelcol.exporter.prometheus "mimir" {
+  client {
+    endpoint = "http://mimir:9009/api/v1/push"
+  }
+}
+
+// Loki exporter
+otelcol.exporter.loki "default" {
+  client {
+    endpoint = "http://loki:3100/loki/api/v1/push"
+  }
+  // Extract traceID from log record for correlation
+  labels {
+    traceID = attributes["traceID"]
+  }
+}
+
+// Tempo exporter (OTLP)
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// Prometheus metrics endpoint for Alloy self-monitoring
+prometheus.exporter.unix "alloy" {
+}
+
+// Prometheus scrape config for Alloy metrics
+prometheus.scrape "alloy" {
+  targets    = [{__address__ = "localhost:12347"}]
+  job_name   = "alloy"
+  forward_to = [otelcol.exporter.prometheus.mimir.input]
+}
+
+// Scrape gateway metrics
+prometheus.scrape "gateway" {
+  targets    = [{__address__ = "gateway:8000"}]
+  job_name   = "gateway"
+  metrics_path = "/metrics"
+  forward_to = [otelcol.exporter.prometheus.mimir.input]
+}
+
+// Scrape Mimir self-metrics
+prometheus.scrape "mimir" {
+  targets    = [{__address__ = "mimir:9009"}]
+  job_name   = "mimir"
+  forward_to = [otelcol.exporter.prometheus.mimir.input]
+}
+
+// Scrape Loki self-metrics
+prometheus.scrape "loki" {
+  targets    = [{__address__ = "loki:3100"}]
+  job_name   = "loki"
+  forward_to = [otelcol.exporter.prometheus.mimir.input]
+}
+
+// Scrape Tempo self-metrics
+prometheus.scrape "tempo" {
+  targets    = [{__address__ = "tempo:3200"}]
+  job_name   = "tempo"
+  forward_to = [otelcol.exporter.prometheus.mimir.input]
+}
