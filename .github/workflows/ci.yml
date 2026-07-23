@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Diff rules (detect stale output)
         run: |
-          docker run --rm \
+          docker run --rm --user root \
             -v ${{ github.workspace }}/sloth:/input \
             slok/sloth:${{ env.SLOTH_VERSION }} \
             generate \
