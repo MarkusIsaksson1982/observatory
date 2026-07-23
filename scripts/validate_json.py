@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Validate Grafana dashboard JSON files for structural and semantic correctness.
 
 Checks:

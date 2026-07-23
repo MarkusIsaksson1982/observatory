@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Validate Observatory trace/log correlation.
 
@@ -68,7 +67,7 @@ def http_request(url: str, timeout: float = 5.0, headers=None, auth=None):
         except json.JSONDecodeError:
             return e.code, {}, body
 
-    except Exception as e:
+    except (urllib.error.URLError, OSError) as e:
         return None, {}, str(e)
 
 
@@ -97,7 +96,7 @@ def generate_traffic(gateway_url: str, trace_id: str):
         }
 
         url = gateway_url.rstrip("/") + path
-        status, _, body = http_request(url, timeout=10.0, headers=headers)
+        status, _, _body = http_request(url, timeout=10.0, headers=headers)
         results[path] = status
 
         if status is None:
@@ -325,7 +324,7 @@ def main() -> int:
                 )
 
                 url = f"{args.loki_url}/loki/api/v1/query_range?{params}"
-                status, payload, body = http_request(url, timeout=10.0)
+                status, payload, _body = http_request(url, timeout=10.0)
 
                 result = []
                 if isinstance(payload, dict):
@@ -368,7 +367,7 @@ def main() -> int:
         url = f"{args.tempo_url}/api/search?tags=service.name%3Dgateway&limit=5"
 
         def check_trace():
-            status, payload, body = http_request(url, timeout=5.0)
+            status, payload, _body = http_request(url, timeout=5.0)
 
             if status == 200 and isinstance(payload, dict):
                 traces = payload.get("traces", [])
@@ -403,7 +402,7 @@ def main() -> int:
     if not args.no_grafana_auth and args.grafana_user:
         grafana_auth = (args.grafana_user, args.grafana_password)
 
-    status, payload, body = http_request(
+    status, payload, _body = http_request(
         f"{args.grafana_url}/api/datasources",
         auth=grafana_auth,
     )

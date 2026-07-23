@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Load generator for Observatory stack - Zero external dependencies.
 
 Generates realistic traffic against the FastAPI gateway service to populate
@@ -17,16 +16,15 @@ Usage:
   python load-generator.py --rate 20 --duration 300 --error-rate 0.2
   python load-generator.py --gateway http://192.168.1.100:8000
 """
-import sys
-import os
 import json
+import os
 import random
-import time
+import sys
 import threading
-import urllib.request
+import time
 import urllib.error
+import urllib.request
 from collections import defaultdict
-from typing import Optional
 
 
 # -- Config --
@@ -91,7 +89,7 @@ class LoadGeneratorState:
 # -- HTTP helpers --
 
 def http_request(url: str, method: str = "GET",
-                 data: Optional[bytes] = None,
+                 data: bytes | None = None,
                  timeout: int = 5) -> tuple[int, float]:
     """Make HTTP request, return (status_code, elapsed_ms)."""
     start = time.monotonic()
@@ -111,7 +109,7 @@ def http_request(url: str, method: str = "GET",
     except urllib.error.URLError:
         elapsed_ms = (time.monotonic() - start) * 1000
         return 0, elapsed_ms
-    except Exception:
+    except OSError:
         elapsed_ms = (time.monotonic() - start) * 1000
         return 0, elapsed_ms
 
@@ -119,7 +117,7 @@ def http_request(url: str, method: str = "GET",
 # -- Request worker --
 
 def send_request(gateway_url: str, method: str, path: str,
-                 payload: Optional[str], state: LoadGeneratorState,
+                 payload: str | None, state: LoadGeneratorState,
                  error_rate: float = 0.12) -> None:
     """Send single request, record metrics."""
     url = f"{gateway_url}{path}"
@@ -327,7 +325,7 @@ def verify_gateway(url: str) -> bool:
         req = urllib.request.Request(f"{url}/health", method="GET")
         with urllib.request.urlopen(req, timeout=3) as resp:
             return resp.status == 200
-    except Exception:
+    except (urllib.error.URLError, OSError):
         return False
 
 

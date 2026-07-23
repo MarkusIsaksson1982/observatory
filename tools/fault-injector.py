@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Observatory fault injector.
 
@@ -164,10 +163,10 @@ def send_one(base_url: str, method: str, path: str, timeout: float, correlation_
         status = e.code
         try:
             _ = e.read(16)
-        except Exception:
+        except OSError:
             pass
 
-    except Exception:
+    except (urllib.error.URLError, OSError):
         status = 0
 
     elapsed_ms = (time.monotonic() - start) * 1000.0
