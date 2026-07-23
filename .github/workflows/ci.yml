@@ -12,7 +12,7 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.11"
-  SLOTH_VERSION: "0.16.0"
+  SLOTH_VERSION: "latest"
 
 jobs:
   lint:
@@ -53,12 +53,12 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/sloth:/input \
             -v /tmp/sloth-rules:/output \
-            slok/sloth:v${{ env.SLOTH_VERSION }} \
+            slok/sloth:${{ env.SLOTH_VERSION }} \
             generate \
             -i /input/gateway-slo.yaml \
             -o /output/ \
             --disable-color
           diff /tmp/sloth-rules/gateway-slo-rules.yaml sloth/gateway-slo-rules.yaml || {
-            echo "::error::Stale Sloth output. Run 'docker run --rm -v $(pwd)/sloth:/input slok/sloth:v0.16.0 generate -i /input/gateway-slo.yaml -o /input/' and commit."
+            echo "::error::Stale Sloth output. Run 'docker run --rm -v $(pwd)/sloth:/input slok/sloth:latest generate -i /input/gateway-slo.yaml -o /input/' and commit."
             exit 1
           }
