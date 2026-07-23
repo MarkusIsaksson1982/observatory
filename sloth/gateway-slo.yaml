@@ -1,0 +1,63 @@
+# Gateway Service SLO Spec (Sloth prometheus/v1)
+#
+# This file defines SLOs for the gateway service using Sloth's prometheus/v1 spec.
+# Generate rules: sloth generate -i gateway-slo.yaml -o gateway-slo-rules.yaml
+#
+# Tempo metrics-generator source (primary RED metrics as of ADR-011):
+#   - traces_spanmetrics_latency (histogram, seconds)
+#   - traces_spanmetrics_calls_total (counter)
+# Labels: service, span_name, span_kind, status_code, http_method, http_route
+
+version: "prometheus/v1"
+service: "gateway"
+labels:
+  owner: "observatory"
+  repo: "MarkusIsaksson1982/fullstack-observatory"
+  tier: "1"
+
+slos:
+  # SLO 1: Availability — 99.9% of requests succeed (no error status)
+  - name: "requests-availability"
+    objective: 99.9
+    description: "Availability SLO: 99.9% of HTTP requests complete without error status."
+    sli:
+      events:
+        error_query: sum(rate(traces_spanmetrics_latency_count{service="gateway",span_kind="SPAN_KIND_SERVER",status_code="STATUS_CODE_ERROR"}[{{.window}}]))
+        total_query: sum(rate(traces_spanmetrics_latency_count{service="gateway",span_kind="SPAN_KIND_SERVER"}[{{.window}}]))
+    alerting:
+      name: GatewayHighErrorRate
+      labels:
+        category: "availability"
+      annotations:
+        summary: "High error rate on gateway requests — error budget burning too fast"
+      page_alert:
+        labels:
+          severity: pageteam
+          routing_key: observatory
+      ticket_alert:
+        labels:
+          severity: "slack"
+          slack_channel: "#alerts-observatory"
+
+  # SLO 2: Latency — 99.5% of requests complete within 500ms (0.5s)
+  - name: "requests-latency"
+    objective: 99.5
+    description: "Latency SLO: 99.5% of HTTP requests complete within 500ms."
+    sli:
+      events:
+        error_query: sum(rate(traces_spanmetrics_latency_bucket{service="gateway",span_kind="SPAN_KIND_SERVER",le="0.5"}[{{.window}}]))
+        total_query: sum(rate(traces_spanmetrics_latency_count{service="gateway",span_kind="SPAN_KIND_SERVER"}[{{.window}}]))
+    alerting:
+      name: GatewayHighLatency
+      labels:
+        category: "latency"
+      annotations:
+        summary: "High latency on gateway requests — latency error budget burning too fast"
+      page_alert:
+        labels:
+          severity: pageteam
+          routing_key: observatory
+      ticket_alert:
+        labels:
+          severity: "slack"
+          slack_channel: "#alerts-observatory"

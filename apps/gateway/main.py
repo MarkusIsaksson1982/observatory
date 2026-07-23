@@ -11,10 +11,11 @@ from contextlib import asynccontextmanager
 from typing import Optional
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException, Request, Response
+from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
+from opentelemetry.trace import StatusCode
 from pydantic import BaseModel
 
-from instrumentation import tracer, business_spans, setup_telemetry
+from instrumentation import tracer, business_spans, compute_fibonacci
 
 
 # Configure logging
@@ -26,7 +27,7 @@ ORDERS_URL = os.getenv("ORDERS_URL", "http://orders:8000")
 PAYMENTS_URL = os.getenv("PAYMENTS_URL", "http://payments:8000")
 
 # HTTP client with timeout
-http_client = httpx.AsyncClient(timeout=httpx.Timeout(30.0))
+http_client = httpx.AsyncClient(timeout=httpx.Timeout(5.0))
 
 
 @asynccontextmanager
@@ -44,6 +45,14 @@ app = FastAPI(
     description="Observability demo gateway - routing, auth, correlation",
     lifespan=lifespan,
 )
+
+# Auto-instrumentation: instrument the app instance directly.
+# instrument_app() adds OpenTelemetryMiddleware to the existing app,
+# bypassing the class-replacement mechanism entirely.
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+FastAPIInstrumentor().instrument_app(app)
+HTTPXClientInstrumentor().instrument()
 
 
 class HealthResponse(BaseModel):
@@ -105,6 +114,7 @@ async def get_orders(
                     
             except httpx.RequestError as e:
                 logger.error("Orders service unavailable", extra={"error": str(e)})
+                span.set_status(StatusCode.ERROR, str(e))
                 span.record_exception(e)
                 raise HTTPException(status_code=503, detail="Orders service unavailable")
 
@@ -140,6 +150,7 @@ async def get_order(
                     
             except httpx.RequestError as e:
                 logger.error("Orders service unavailable", extra={"error": str(e), "order_id": order_id})
+                span.set_status(StatusCode.ERROR, str(e))
                 span.record_exception(e)
                 raise HTTPException(status_code=503, detail="Orders service unavailable")
 
@@ -169,6 +180,7 @@ async def get_payments(
                     
             except httpx.RequestError as e:
                 logger.error("Payments service unavailable", extra={"error": str(e)})
+                span.set_status(StatusCode.ERROR, str(e))
                 span.record_exception(e)
                 raise HTTPException(status_code=503, detail="Payments service unavailable")
 
@@ -205,6 +217,7 @@ async def checkout(
                 
             except httpx.RequestError as e:
                 logger.error("Failed to create order", extra={"error": str(e)})
+                span.set_status(StatusCode.ERROR, str(e))
                 span.record_exception(e)
                 raise HTTPException(status_code=503, detail="Orders service unavailable")
         
@@ -229,6 +242,7 @@ async def checkout(
                 
             except httpx.RequestError as e:
                 logger.error("Failed to process payment", extra={"error": str(e)})
+                span.set_status(StatusCode.ERROR, str(e))
                 span.record_exception(e)
                 raise HTTPException(status_code=503, detail="Payments service unavailable")
         
@@ -244,6 +258,12 @@ async def checkout(
             "payment_id": payment_id,
             "status": "completed"
         }
+
+
+@app.get("/fibonacci")
+async def fibonacci(n: int = Query(..., ge=0, le=90)):
+    result = compute_fibonacci(n)
+    return {"n": n, "result": result}
 
 
 if __name__ == "__main__":

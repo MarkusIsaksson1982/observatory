@@ -1,7 +1,7 @@
 # ADR-003: Log Label Strategy — Low Cardinality, traceID as Label
 
-**Status:** Accepted
-**Date:** 2025-07-18
+**Status:** Accepted (updated 2026-07-19 with actual label naming)
+**Date:** 2026-07-19
 **Deciders:** Technical Lead, Implementation Engineer
 
 ## Context
@@ -17,14 +17,14 @@ We need a strategy that enables trace→logs correlation without cardinality exp
 **Low-cardinality labels only + traceID as structured field.**
 
 ### Label Set (Indexed)
-| Label | Values | Cardinality |
-|-------|--------|-------------|
-| `service` | gateway, orders, payments | 3 |
-| `environment` | local, staging, prod | 3 |
-| `level` | debug, info, warn, error | 4 |
-| `namespace` | app, infra | 2 |
+| Label | Source OTel Attribute | Values | Cardinality |
+|-------|----------------------|--------|-------------|
+| `service_name` | `service.name` | gateway, orders, payments | 3 |
+| `deployment_environment` | `deployment.environment` | local, staging, prod | 3 |
 
-**Max series:** 3 × 3 × 4 × 2 = 72 (negligible)
+**Note on naming:** `otelcol.exporter.loki` sanitizes promoted resource attributes to Prometheus label format — dots become underscores. So `service.name` → `service_name`, `deployment.environment` → `deployment_environment`. This is automatic; no relabeling step needed.
+
+**Max series:** 3 × 3 = 9 (negligible)
 
 ### Structured Log Fields (Not Indexed)
 - `traceID` — Full 32-char hex (extracted via JSON pipeline)
@@ -34,9 +34,9 @@ We need a strategy that enables trace→logs correlation without cardinality exp
 
 ### Correlation Mechanism
 1. OTel SDK injects `trace_id` into log record via `LoggingHandler`
-2. Alloy Loki sink extracts `traceID` as label via `stage.labels` → **only for correlation queries**
+2. `otelcol.processor.attributes` inserts `loki.resource.labels` hints to promote `service.name` and `deployment.environment` to Loki labels
 3. Grafana data link: `{traceID="<trace_id>"}` → Loki query
-4. **Not** a permanent label — extracted at query time via `stage.json` → `stage.labels` pipeline
+4. **Not** a permanent label — `traceID` stays as a structured field, extracted at query time
 
 ## Consequences
 
@@ -46,8 +46,8 @@ We need a strategy that enables trace→logs correlation without cardinality exp
 - **Cost control:** Labels stay bounded regardless of traffic volume
 
 ### Negative
+- Label names differ from OTel attribute names (cosmetic, but documented)
 - Correlation requires Loki pipeline config (extra complexity)
-- Can't use `traceID` in Loki retention/streaming rules directly
 
 ### Neutral
 - OTel semantic conventions for log attributes followed
@@ -62,4 +62,5 @@ We need a strategy that enables trace→logs correlation without cardinality exp
 
 - [Loki Label Best Practices](https://grafana.com/docs/loki/latest/best-practices/)
 - [OTel Log Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/logs/)
-- PROJECT_CONSTITUTION.md Section 4 (ADR-009)
+- [otelcol.exporter.loki documentation](https://grafana.com/docs/alloy/latest/reference/components/otelcol.exporter.loki/)
+- AI Execution Roadmap, ADR-009

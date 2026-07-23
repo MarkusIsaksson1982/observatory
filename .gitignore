@@ -34,6 +34,13 @@ uv.lock
 *.tfvars.json
 .terraform.lock.hcl
 
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
 # IDE
 .vscode/
 .idea/

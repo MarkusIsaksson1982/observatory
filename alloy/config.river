@@ -1,7 +1,25 @@
 // Alloy Configuration for Observatory
-// OTLP receiver -> Mimir/Loki/Tempo pipelines
+// OTLP logs → Loki, OTLP traces → Tempo (RED metrics via Tempo metrics-generator)
+//
+// Pipeline:
+//   Logs:   OTLP Receiver → Attributes Processor (label hints) → OTLP/HTTP → Loki
+//   Traces: OTLP Receiver → OTLP Exporter → Tempo
+//
+// Label naming note: Loki's OTLP ingestion sanitizes resource attributes
+// to Prometheus label format — dots become underscores. So service.name → service_name.
+// Acceptance criteria: {service_name="gateway"}.
+//
+// Structured metadata fix (Claude Sonnet 5, 2026-07-20): otelcol.exporter.loki
+// wraps all OTLP attributes into a JSON body blob, losing structured metadata
+// (trace_id, span_id, etc.) — Alloy #2757. Switched to otelcol.exporter.otlphttp
+// which sends native OTLP/HTTP, preserving structured metadata in Loki 3.x.
+// Loki's allow_structured_metadata: true (loki.yml) enables queryable trace
+// correlation: {service_name="gateway"} | trace_id != "".
 
-// OTLP Receiver
+// ============================================================
+// LOGS: OTLP Receiver → Processor (label hints) → OTLP/HTTP → Loki
+// ============================================================
+
 otelcol.receiver.otlp "default" {
   grpc {
     endpoint = "0.0.0.0:4317"
@@ -10,50 +28,46 @@ otelcol.receiver.otlp "default" {
     endpoint = "0.0.0.0:4318"
   }
   output {
-    metrics = [otelcol.processor.batch.metrics.input]
-    logs    = [otelcol.processor.batch.logs.input]
-    traces  = [otelcol.processor.batch.traces.input]
-  }
-}
-
-// Batch processor for efficiency
-otelcol.processor.batch "metrics" {
-  output {
-    metrics = [otelcol.exporter.prometheus.mimir.input]
-  }
-}
-
-otelcol.processor.batch "logs" {
-  output {
-    logs = [otelcol.exporter.loki.default.input]
-  }
-}
-
-otelcol.processor.batch "traces" {
-  output {
+    logs   = [otelcol.processor.attributes.loki_hints.input]
     traces = [otelcol.exporter.otlp.tempo.input]
   }
 }
 
-// Mimir exporter (Prometheus remote write)
-otelcol.exporter.prometheus "mimir" {
-  client {
-    endpoint = "http://mimir:9009/api/v1/push"
+otelcol.processor.attributes "loki_hints" {
+  // Inserts loki.resource.labels hint so otelcol.exporter.loki promotes
+  // resource attributes to Loki stream labels (service.name → service_name).
+  //
+  // NOTE: This hint is only consumed by otelcol.exporter.loki.
+  // After switching to otelcol.exporter.otlphttp (2026-07-20), Loki's own
+  // OTLP ingestion handles attribute-to-label mapping natively. The processor
+  // is retained for backward compatibility and in case we revert.
+  action {
+    key    = "loki.resource.labels"
+    action = "insert"
+    value  = "service.name,deployment.environment"
+  }
+  output {
+    logs = [otelcol.exporter.otlphttp.loki.input]
   }
 }
 
-// Loki exporter
-otelcol.exporter.loki "default" {
+// otelcol.exporter.otlphttp replaces otelcol.exporter.loki (2026-07-20).
+// otelcol.exporter.loki wraps everything into a JSON body blob and does not
+// support structured metadata (Alloy #2757). otelcol.exporter.otlphttp
+// sends native OTLP/HTTP, preserving trace_id/span_id as queryable
+// structured metadata in Loki 3.x.
+otelcol.exporter.otlphttp "loki" {
   client {
-    endpoint = "http://loki:3100/loki/api/v1/push"
-  }
-  // Extract traceID from log record for correlation
-  labels {
-    traceID = attributes["traceID"]
+    // otelcol.exporter.otlphttp appends /v1/logs automatically.
+    // Final URL: http://loki:3100/otlp/v1/logs
+    endpoint = "http://loki:3100/otlp"
   }
 }
 
-// Tempo exporter (OTLP)
+// ============================================================
+// TRACES → Tempo: OTLP Exporter
+// ============================================================
+
 otelcol.exporter.otlp "tempo" {
   client {
     endpoint = "tempo:4317"
@@ -63,42 +77,31 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-// Prometheus metrics endpoint for Alloy self-monitoring
-prometheus.exporter.unix "alloy" {
-}
+// ============================================================
+// SCRAPING: Prometheus scrape for infra self-monitoring
+// Alloy + Loki /metrics endpoints forwarded to Mimir.
+// ============================================================
 
-// Prometheus scrape config for Alloy metrics
 prometheus.scrape "alloy" {
-  targets    = [{__address__ = "localhost:12347"}]
-  job_name   = "alloy"
-  forward_to = [otelcol.exporter.prometheus.mimir.input]
-}
-
-// Scrape gateway metrics
-prometheus.scrape "gateway" {
-  targets    = [{__address__ = "gateway:8000"}]
-  job_name   = "gateway"
+  targets      = [{"__address__" = "alloy:12345"}]
+  job_name     = "alloy"
   metrics_path = "/metrics"
-  forward_to = [otelcol.exporter.prometheus.mimir.input]
+  forward_to   = [prometheus.remote_write.mimir.receiver]
 }
 
-// Scrape Mimir self-metrics
-prometheus.scrape "mimir" {
-  targets    = [{__address__ = "mimir:9009"}]
-  job_name   = "mimir"
-  forward_to = [otelcol.exporter.prometheus.mimir.input]
-}
-
-// Scrape Loki self-metrics
 prometheus.scrape "loki" {
-  targets    = [{__address__ = "loki:3100"}]
-  job_name   = "loki"
-  forward_to = [otelcol.exporter.prometheus.mimir.input]
+  targets      = [{"__address__" = "loki:3100"}]
+  job_name     = "loki"
+  metrics_path = "/metrics"
+  forward_to   = [prometheus.remote_write.mimir.receiver]
 }
 
-// Scrape Tempo self-metrics
-prometheus.scrape "tempo" {
-  targets    = [{__address__ = "tempo:3200"}]
-  job_name   = "tempo"
-  forward_to = [otelcol.exporter.prometheus.mimir.input]
+// ============================================================
+// METRICS PIPELINE: Scraped infra metrics → Mimir
+// ============================================================
+
+prometheus.remote_write "mimir" {
+  endpoint {
+    url = "http://mimir:9009/api/v1/push"
+  }
 }

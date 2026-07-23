@@ -1,7 +1,7 @@
 # ADR-001: Collector Choice — Grafana Alloy
 
 **Status:** Accepted
-**Date:** 2025-07-18
+**Date:** 2026-07-19
 **Deciders:** Technical Lead, Implementation Engineer
 
 ## Context

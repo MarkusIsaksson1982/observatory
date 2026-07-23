@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Gateway service - entry point
   gateway:
@@ -29,7 +27,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # Grafana Alloy - Telemetry collector
+  # Grafana Alloy - Telemetry collector (OTLP -> stdout)
   alloy:
     image: grafana/alloy:v1.5.0
     container_name: observatory-alloy
@@ -41,111 +39,113 @@ services:
     volumes:
       - ./alloy/config.river:/etc/alloy/config.river:ro
     command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.river"]
+    depends_on:
+      tempo:
+        condition: service_healthy
+      mimir:
+        condition: service_healthy
     networks:
       - observatory-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:12345/-/healthy"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/12345'"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
 
-  # Grafana - Visualization
-  grafana:
-    image: grafana/grafana:11.1.0
-    container_name: observatory-grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_INSTALL_PLUGINS=
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - grafana-data:/var/lib/grafana
-    depends_on:
-      - alloy
-    networks:
-      - observatory-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
-  # Mimir - Metrics storage
-  mimir:
-    image: grafana/mimir:2.12.0
-    container_name: observatory-mimir
-    restart: unless-stopped
-    ports:
-      - "9009:9009"
-    command:
-      - -config.file=/etc/mimir/mimir.yml
-    volumes:
-      - ./mimir/mimir.yml:/etc/mimir/mimir.yml:ro
-      - mimir-data:/data
-    networks:
-      - observatory-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9009/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  # Loki - Log aggregation
+  # Grafana Loki - Log storage & query engine
   loki:
     image: grafana/loki:3.1.0
     container_name: observatory-loki
     restart: unless-stopped
     ports:
       - "3100:3100"
-    command:
-      - -config.file=/etc/loki/loki.yml
     volumes:
-      - ./loki/loki.yml:/etc/loki/loki.yml:ro
+      - ./loki/loki.yml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki
+    command: ["-config.file=/etc/loki/local-config.yaml"]
     networks:
       - observatory-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3100/ready"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
+      start_period: 15s
 
-  # Tempo - Trace storage
+  # Grafana - Visualization & dashboards
+  grafana:
+    image: grafana/grafana:13.1.0
+    container_name: observatory-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      loki:
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
+      mimir:
+        condition: service_healthy
+    networks:
+      - observatory-network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/3000'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Grafana Tempo - Trace storage & query backend
   tempo:
     image: grafana/tempo:2.5.0
     container_name: observatory-tempo
     restart: unless-stopped
     ports:
-      - "3200:3200"   # Tempo HTTP
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-    command:
-      - -config.file=/etc/tempo/tempo.yml
+      - "3200:3200"   # query API only — Alloy reaches 4317/4318 over internal network
     volumes:
-      - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - ./tempo/tempo.yml:/etc/tempo/config.yaml:ro
       - tempo-data:/var/tempo
+    command: ["--config.file=/etc/tempo/config.yaml"]
     networks:
       - observatory-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3200/ready"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3200/ready || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
+      start_period: 30s
+
+  # Grafana Mimir - Metrics storage & query backend (single-binary mode)
+  mimir:
+    image: grafana/mimir:2.12.0
+    container_name: observatory-mimir
+    restart: unless-stopped
+    ports:
+      - "9009:9009"   # HTTP API (Prometheus-compatible)
+    volumes:
+      - ./mimir/mimir.yml:/etc/mimir/config.yaml:ro
+      - ./mimir-rules:/tmp/mimir-rules:ro
+      - mimir-data:/data
+    command: ["--config.file=/etc/mimir/config.yaml"]
+    networks:
+      - observatory-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9009/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 volumes:
-  grafana-data:
-  mimir-data:
   loki-data:
   tempo-data:
+  mimir-data:
 
 networks:
   observatory-network:

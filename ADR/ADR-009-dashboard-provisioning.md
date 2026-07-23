@@ -1,7 +1,7 @@
 # ADR-009: Dashboard Provisioning — Phase 1 = Grafana YAML, Phase 2+ = Terraform
 
 **Status:** Accepted
-**Date:** 2025-07-18
+**Date:** 2026-07-19
 **Deciders:** Technical Lead, Implementation Engineer
 
 ## Context
@@ -40,5 +40,5 @@ We need to provision Grafana datasources and dashboards. Two approaches:
 
 - [Grafana Terraform Provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs)
 - [Grafana Provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/)
-- PROJECT_CONSTITUTION.md Section 4 (ADR-006, ADR-007)
-- Design Principle #5: Automation over manual steps
+- AI Execution Roadmap
+- Claude Sonnet 5 architectural vision (three dashboard genres, before/after case study)

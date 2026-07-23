@@ -1,50 +1,42 @@
 # Mimir Configuration for Observatory
-# Minimal local configuration with filesystem storage
+# Minimal single-binary mode for Mimir 2.12
+
+# Top-level auth flags (NOT under an auth: block)
+multitenancy_enabled: false
+no_auth_tenant: "tenant-0"
 
 server:
   http_listen_port: 9009
   grpc_listen_port: 9010
 
 common:
-  path_prefix: /data
   storage:
     filesystem:
       dir: /data
+
+ingester:
   ring:
-    kvstore:
-      store: inmemory
-  replication_factor: 1
+    replication_factor: 1
 
 limits:
   ingestion_rate: 10000
   ingestion_burst_size: 20000
-  per_user_ingestion_rate: 10000
-  per_user_ingestion_burst_size: 20000
+  compactor_blocks_retention_period: 0s
 
 compactor:
-  working_directory: /data/compactor
+  data_dir: /tmp/mimir-compactor
   compaction_interval: 1h
-  retention_enabled: true
-  retention_delete_delay: 2h
 
 ruler:
-  storage:
-    type: local
-    local:
-      path: /data/rules
-  rule_path: /etc/mimir/rules
-  alertmanager_url: http://alertmanager:9093
+  rule_path: /tmp/mimir-ruler
   enable_api: true
-  ring:
-    kvstore:
-      store: inmemory
 
-alertmanager:
-  storage:
-    type: local
-    local:
-      path: /data/alertmanager
+ruler_storage:
+  backend: local
+  local:
+    directory: /tmp/mimir-rules
 
-# Enable /ready and /metrics endpoints
-api:
-  http_listen_port: 9009
+alertmanager_storage:
+  backend: local
+  local:
+    path: /tmp/mimir-alertmanager

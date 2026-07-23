@@ -1,121 +1,106 @@
 # Observatory
 
-**A production-grade observability platform demonstrating LGTM stack expertise, OpenTelemetry instrumentation, SLO-based alerting, and observability-as-a-practice.**
+**Self-hosted production-pattern observability stack** showcasing deep LGTM expertise, OpenTelemetry instrumentation, SLOs with burn-rate alerting, and observability as a practice.
 
-> **Live Demo:** [observatory-demo.example.com](https://observatory-demo.example.com) (read-only Grafana Cloud)
+Built as a portfolio piece for Grafana engineering roles.
+
+```mermaid
+flowchart LR
+    Gateway[Gateway]
+    Alloy[Alloy]
+    Loki[Loki]
+    Tempo[Tempo]
+    Mimir[Mimir]
+    Grafana[Grafana]
+
+    Gateway -->|OTLP Logs| Alloy
+    Gateway ==>|OTLP Traces| Alloy
+
+    Alloy -->|OTLP/HTTP Logs| Loki
+    Alloy ==>|OTLP Traces| Tempo
+    Alloy -.->|Remote Write Metrics| Mimir
+
+    Tempo -.->|Generated RED Metrics| Mimir
+
+    Loki -->|Read Logs| Grafana
+    Tempo ==>|Read Traces| Grafana
+    Mimir -.->|Read Metrics| Grafana
+```
+
+Observatory — self-hosted Grafana LGTM stack with OTel instrumentation
 
 ---
 
-## Architecture
+## Quick Start (60 seconds)
 
+```bash
+git clone https://github.com/MarkusIsaksson1982/observatory.git
+cd observatory
+cp .env.example .env
+make up              # Starts Gateway, Alloy, Loki, Tempo, Mimir, Grafana
+cd terraform && terraform apply -auto-approve && cd ..
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           Demo Applications                                 │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                      │
-│  │   Gateway   │───▶│   Orders    │    │  Payments   │  (Python FastAPI)    │
-│  │  (FastAPI)  │    │  (FastAPI)  │    │  (FastAPI)  │  + OTel SDK         │
-│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘                      │
-└─────────┼──────────────────┼──────────────────┼──────────────────────────────┘
-          │                  │                  │
-          ▼                  ▼                  ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      Grafana Alloy (OTel Collector)                         │
-│         Metrics → Mimir    Logs → Loki    Traces → Tempo                    │
-└────────────────────────────────┬────────────────────────────────────────────┘
-                                 │
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        Grafana (Provisioned)                                │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────────────────────┐ │
-│  │ Infra/RED    │ │ Reliability  │ │ Business KPI │ │ Trace/Log          │ │
-│  │ Dashboard    │ │ /SLO/Budget  │ │ Dashboard    │ │ Correlation        │ │
-│  └──────────────┘ └──────────────┘ └──────────────┘ └────────────────────┘ │
-│  ┌────────────────────────────────────────────────────────────────────────┐ │
-│  │              Before/After Dashboard Redesign Case Study                │ │
-│  └────────────────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────────────┘
+
+Open **http://localhost:3000** (admin/admin) → explore provisioned dashboards.
+
+```bash
+make validate        # Health check all services
 ```
 
 ---
 
 ## What This Demonstrates
 
-| Competency | Evidence |
-|------------|----------|
-| **Grafana / LGTM Stack** | Full stack running, correlated via Alloy |
-| **OpenTelemetry** | Auto + manual instrumentation, exemplars, traceID injection |
-| **SLOs & Burn-Rate Alerting** | Multi-window multi-burn-rate, error budget dashboard, simulator |
-| **Terraform + Ansible** | TF: Grafana provider (dashboards, alerts, SLOs); Ansible: fleet bootstrap |
-| **Dashboard as Code** | JSON in repo, Terraform-managed, CI-validated, before/after case study |
-| **Consumer Onboarding** | 15-min runbook, stakeholder briefs, 5 training lessons |
+- **Full LGTM stack**: Loki (logs), Tempo (traces), Mimir (metrics), Grafana.
+- **End-to-end telemetry**: OpenTelemetry-instrumented Python FastAPI with traces, metrics, structured logs + traceID correlation.
+- **RED dashboards**: Request rate, error rate, latency (p50/p95/p99), service status.
+- **SLO practice**: Sloth-generated multi-window multi-burn-rate alerts (99.9% availability, 99.5% <500ms latency).
+- **Trace-to-log correlation**: Click a trace → filtered Loki logs.
+- **Metrics from traces**: Tempo metrics-generator derives RED metrics with exemplar support.
+- **IaC & governance**: ADRs, decision log, validation scripts.
+
+**Live signals flow** from code instrumentation through Alloy into all three backends.
 
 ---
 
-## Quickstart
+## Key Dashboards (Provisioned)
 
-```bash
-# Prerequisites: Docker, Docker Compose, make
-git clone https://github.com/MarkusIsaksson1982/observatory
-cd observatory
-make up
-
-# Wait ~60s, then open:
-#   Grafana:    http://localhost:3000 (admin/admin)
-#   Gateway:    http://localhost:8000
-#   Alloy:      http://localhost:12345
-#   Mimir:      http://localhost:9009
-#   Tempo:      http://localhost:3200
-#   Loki:       http://localhost:3100
-
-make validate  # Health check all services
-make down      # Clean shutdown
-```
+- **service-health-red** – 6 RED panels: request rate, error rate, latency percentiles, service status, volume.
+- **slo-burn-rate** – 9 SLO panels: availability, error budget, burn rate (5m/30m), multi-window SLI trend, SLO inventory table.
+- **system-overview** – High-level health, aggregate request rate, error budget burn, log volume, Tempo service map.
 
 ---
 
-## Screenshot
+## SLO Targets (Live in Mimir)
 
-![Service Health RED Dashboard](docs/screenshots/service-health-red.png)
-
-*Service Health dashboard showing RED metrics per service with exemplars linking to traces.*
-
----
-
-## Key Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [SHOWCASE.md](SHOWCASE.md) | 5-minute hiring overview |
-| [PROJECT_CONSTITUTION.md](PROJECT_CONSTITUTION.md) | Frozen governance |
-| [ROADMAP.md](ROADMAP.md) | Timeline & decisions |
-| [ADR/](ADR/) | Architecture decisions |
-| [docs/PORTFOLIO_EVIDENCE.md](docs/PORTFOLIO_EVIDENCE.md) | Job req → artifact mapping |
+- **Availability**: 99.9% successful requests.
+- **Latency**: 99.5% of requests < 500ms.
+- Burn-rate alerting (fast + slow) + error budget tracking via Sloth.
 
 ---
 
-## Repository Structure
+## Tech Stack
 
-```
-observatory/
-├── PROJECT_CONSTITUTION.md     # Frozen governance
-├── ROADMAP.md                  # Timeline & decisions
-├── DESIGN_PRINCIPLES.md        # 12 principles
-├── CAPABILITY_MATRIX.md        # Living capability tracking
-├── IMPLEMENTATION_STATUS.md    # Daily progress
-├── DECISION_LOG.md             # Captain's log
-├── ADR/                        # Frozen ADRs
-├── apps/gateway/               # FastAPI + OTel instrumentation
-├── alloy/config.river          # Alloy pipeline config
-├── grafana/provisioning/       # Datasources + dashboards
-├── mimir/, loki/, tempo/       # LGTM configs
-├── terraform/                  # Grafana provider (Phase 5)
-├── ansible/                    # Fleet bootstrap (Phase 5)
-├── scripts/                    # Load gen, fault injection
-└── .github/workflows/          # CI: lint, validate
-```
+- **Core**: Grafana, Loki, Tempo, Mimir, Alloy
+- **App**: Python/FastAPI + OpenTelemetry SDK
+- **IaC**: Docker Compose (Terraform planned for v0.6.0)
+- **SLOs**: Sloth (Google SRE multi-window multi-burn-rate)
 
 ---
 
-## License
+## Documentation
 
-MIT License — see [LICENSE](LICENSE)
+- [Deployer Guide](./docs/deployer-guide.md) – 3-minute walkthrough for demonstrating the stack.
+- [ADRs](./ADR/) – Architecture decisions (Alloy choice, labels, SLOs, metrics source).
+- [Decision Log](./DECISION_LOG.md) – Chronological record of all architectural decisions.
+- [Portfolio Evidence](./docs/PORTFOLIO_EVIDENCE.md) – Direct mapping to job requirements.
+
+## Tools
+
+- **`tools/load-generator.py`** – Zero-dependency Python load generator for populating dashboards. Rate limiting, error injection, Ctrl+C graceful shutdown. `python tools/load-generator.py --rate 10 --duration 120`
+
+---
+
+**Built with observability as a practice**, not just tools. One-command demo for recruiters.
+
+*AI-assisted development with human oversight and architectural direction.*

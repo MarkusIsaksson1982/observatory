@@ -1,0 +1,36 @@
+---
+# Shared versions — single source of truth for .env templating
+# Mirrors .env.example but allows per-env overrides
+grafana_version: "13.1.0"
+alloy_version: "v1.5.0"
+mimir_version: "2.12.0"
+loki_version: "3.1.0"
+tempo_version: "2.5.0"
+
+# Default credentials for local demo only — override via vault in real envs
+grafana_user: "admin"
+grafana_password: "admin"
+
+# Environment matrix — this is the templating part the job description asks for
+environments:
+  local:
+    otel_endpoint: "http://alloy:4317"
+    environment_label: "local"
+    loki_retention: "30d"
+    tempo_retention: "1h"
+    mimir_ingestion_rate: 10000
+  staging:
+    otel_endpoint: "http://alloy:4317"
+    environment_label: "staging"
+    loki_retention: "14d"
+    tempo_retention: "1h"
+    mimir_ingestion_rate: 10000
+  prod:
+    otel_endpoint: "http://alloy:4317"
+    environment_label: "prod"
+    loki_retention: "7d"
+    tempo_retention: "1h"
+    mimir_ingestion_rate: 20000
+
+# Repo root relative to playbook_dir — allows playbook to be run from ansible/
+repo_root: "{{ playbook_dir }}/.."

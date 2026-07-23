@@ -16,8 +16,6 @@ distributor:
 
 ingester:
   max_block_duration: 5m
-  max_block_bytes: 1_000_000
-  complete_block_timeout: 15m
 
 storage:
   trace:
@@ -33,18 +31,24 @@ storage:
 compactor:
   compaction:
     block_retention: 1h
-    compacted_block_retention: 1h
-  compaction_interval: 10m
-
-querier:
-  query_frontend:
-    max_parallelism: 10
-
-query_frontend:
-  max_parallelism: 10
-  query_timeout: 30s
 
 metrics_generator:
+  processor:
+    span_metrics:
+      dimensions:
+        - http.method
+        - http.route
+        - http.status_code
+      histogram_buckets:
+        - 0.05
+        - 0.1
+        - 0.25
+        - 0.5
+        - 1
+        - 2.5
+        - 5
+        - 10
+  metrics_ingestion_time_range_slack: 5m
   registry:
     external_labels:
       source: tempo
@@ -57,5 +61,5 @@ metrics_generator:
 
 overrides:
   defaults:
-    traces:
-      generation_enabled: true
+    metrics_generator:
+      processors: [span-metrics]

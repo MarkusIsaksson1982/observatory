@@ -8,26 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Project Constitution v1.0 (governance frozen)
-- ADR-001: Collector Choice (Alloy)
-- ADR-003: Log Label Strategy (traceID, low cardinality)
-- ADR-009: Dashboard Provisioning (Phase 1 = Grafana YAML, Phase 2+ = Terraform)
-- Design Principles (12 principles)
-- Personas (5 audiences)
-- Capability Matrix (15 capabilities)
-- Portfolio Evidence Map (18 requirements × 4 quality dimensions)
-- Demonstration Scenarios (5 scenarios)
-- Interview Questions (20 Q&A mapped to ADRs)
-- Phase 1 Implementation Plan (Day 1–5)
-- Roadmap with Rejected section
-- Architecture Fitness Checklist (8 functions)
+- Loki service with TSDB schema, filesystem storage
+- Alloy OTLP → Loki exporter wiring (`otelcol.exporter.loki`, `loki.write`)
+- Gateway OTel instrumentation (FastAPI, httpx, logging)
+- Gateway health endpoint (`/health`)
+- Makefile targets (up, down, logs, validate)
+
+### Fixed
+- Alloy healthcheck (curl → bash TCP check — no curl/wget in grafana/alloy image)
+- Loki healthcheck (wget spider — confirmed present in grafana/loki:3.1.0)
+- Gateway Dockerfile CMD (removed redundant opentelemetry-instrument CLI)
+- FastAPIInstrumentor instance method call (class → instance)
 
 ---
 
-## [0.1.0] - 2025-07-18
+## [0.1.0] - 2026-07-19
 
 ### Added
-- Repository initialized with governance framework
-- Project Constitution v1.0
-- All Phase 1 ADRs frozen
-- Core documentation structure
+- Repository initialized
+- FastAPI gateway with OTel instrumentation
+- Alloy with OTLP receiver
+- Docker Compose with healthchecks for Gateway, Alloy
+- Gateway Dockerfile (Python 3.13-slim)
+- ADR-001: Collector Choice (Alloy over vanilla OTel Collector)
+- ADR-003: Log Label Strategy
+- ADR-009: Dashboard Provisioning Strategy

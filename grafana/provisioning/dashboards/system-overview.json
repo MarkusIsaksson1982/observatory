@@ -1,0 +1,46 @@
+{
+  "title": "System Overview",
+  "uid": "system-overview",
+  "tags": ["observatory", "overview"],
+  "timezone": "browser",
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "title": "Scraped Services",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 6},
+      "targets": [{"expr": "count(up{job=~\"alloy|loki\"} == 1)", "legendFormat": "Healthy", "refId": "A"}],
+      "description": "Services with Prometheus scrape targets (Alloy, Loki). Gateway, Tempo, Mimir are not scraped.",
+      "datasource": {"uid": "mimir"}
+    },
+    {
+      "title": "Aggregate Request Rate",
+      "type": "timeseries",
+      "gridPos": {"x": 6, "y": 0, "w": 9, "h": 6},
+      "targets": [{"expr": "sum(rate(traces_spanmetrics_calls_total{span_kind=\"SPAN_KIND_SERVER\"}[5m])) by (service)", "legendFormat": "{{service}}", "refId": "A"}],
+      "datasource": {"uid": "mimir"}
+    },
+    {
+      "title": "Aggregate Error Budget Burn",
+      "type": "timeseries",
+      "gridPos": {"x": 15, "y": 0, "w": 9, "h": 6},
+      "targets": [{"expr": "slo:current_burn_rate:ratio{sloth_service=\"gateway\"}", "legendFormat": "{{sloth_slo}}", "refId": "A"}],
+      "datasource": {"uid": "mimir"}
+    },
+    {
+      "title": "Log Volume by Level",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 6, "w": 12, "h": 8},
+      "targets": [{"expr": "sum(count_over_time({service_name=\"gateway\"}[5m])) by (level)", "refId": "A"}],
+      "datasource": {"uid": "loki"}
+    },
+    {
+      "title": "Service Map",
+      "type": "nodeGraph",
+      "gridPos": {"x": 12, "y": 6, "w": 12, "h": 8},
+      "targets": [{"queryType": "serviceMap", "refId": "A"}],
+      "datasource": {"uid": "tempo"}
+    }
+  ]
+}

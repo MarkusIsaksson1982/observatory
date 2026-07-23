@@ -2,7 +2,7 @@
 # Optimized for size and security
 
 # Build stage
-FROM python:3.12-slim@sha256:8b89c0d8c3e8f3e8b8c5e8f8b8c5e8f8b8c5e8f8b8c5e8f8b8c5e8f8b8c5e8f8 AS builder
+FROM python:3.12-slim AS builder
 
 # Install uv for fast dependency installation
 RUN pip install --no-cache-dir uv
@@ -12,11 +12,11 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml uv.lock* ./
 
-# Install dependencies
-RUN uv sync --frozen --no-dev
+# Install dependencies (generate lockfile if missing)
+RUN uv sync --frozen --no-dev || uv sync --no-dev
 
 # Runtime stage
-FROM python:3.12-slim@sha256:8b89c0d8c3e8f3e8b8c5e8f8b8c5e8f8b8c5e8f8b8c5e8f8b8c5e8f8b8c5e8f8 AS runtime
+FROM python:3.12-slim AS runtime
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -45,4 +45,4 @@ USER appuser
 EXPOSE 8000
 
 # Run with OpenTelemetry auto-instrumentation
-CMD ["python", "-m", "opentelemetry-instrument", "main.py"]
+CMD ["python", "main.py"]
