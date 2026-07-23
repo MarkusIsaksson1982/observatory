@@ -1,68 +1,3 @@
-<<<<<<< Updated upstream
-name: Observatory CI
-
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  PYTHON_VERSION: "3.11"
-  SLOTH_VERSION: "latest"
-
-jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install linting tools
-        run: pip install ruff yamllint
-      - name: Ruff check
-        run: ruff check --output-format=github apps/ scripts/ tools/
-      - name: YAML lint
-        run: yamllint -d relaxed alloy/ loki/ mimir/ tempo/ grafana/ sloth/
-      - name: Docker Compose config
-        run: docker compose config --quiet
-
-  validate-json:
-    name: Validate JSON
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Validate JSON files
-        run: python scripts/validate_json.py grafana/provisioning/dashboards/*.json
-
-  validate-sloth:
-    name: Validate Sloth
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Diff rules (detect stale output)
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/sloth:/input \
-            slok/sloth:${{ env.SLOTH_VERSION }} \
-            generate \
-            -i /input/gateway-slo.yaml \
-            -o /tmp/gateway-slo-rules.yaml \
-            --no-color
-          diff /tmp/gateway-slo-rules.yaml sloth/gateway-slo-rules.yaml || {
-            echo "::error::Stale Sloth output. Run 'docker run --rm -v $(pwd)/sloth:/input slok/sloth:latest generate -i /input/gateway-slo.yaml -o /input/gateway-slo-rules.yaml' and commit."
-            exit 1
-          }
-=======
 name: Observatory CI
 
 on:
@@ -126,4 +61,3 @@ jobs:
             echo "::error::Stale Sloth output. Run 'docker run --rm -v $(pwd)/sloth:/input slok/sloth:latest generate -i /input/gateway-slo.yaml -o /input/gateway-slo-rules.yaml' and commit."
             exit 1
           }
->>>>>>> Stashed changes
