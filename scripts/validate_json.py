@@ -16,7 +16,6 @@ import re
 import sys
 from pathlib import Path
 
-
 REQUIRED_DASHBOARD_FIELDS = {"title", "uid", "panels"}
 PROMQL_BACKSLASH_RE = re.compile(r'\\')  # literal backslash in decoded string
 PROMQL_UNRESOLVED_VAR_RE = re.compile(r'\$\{[^}]+\}')

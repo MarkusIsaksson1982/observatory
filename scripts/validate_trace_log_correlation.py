@@ -26,7 +26,6 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-
 PASS = "PASS"
 WARN = "WARN"
 FAIL = "FAIL"
@@ -202,35 +201,35 @@ def main() -> int:
     # Basic service health
     # ------------------------------------------------------------------
 
-    status, payload, body = http_request(f"{args.gateway_url}/health")
+    status, payload, _body = http_request(f"{args.gateway_url}/health")
     add(
         "gateway_health",
         PASS if status == 200 else FAIL,
         f"HTTP {status}",
     )
 
-    status, payload, body = http_request(f"{args.alloy_url}/-/healthy")
+    status, payload, _body = http_request(f"{args.alloy_url}/-/healthy")
     add(
         "alloy_health",
         PASS if status == 200 else FAIL,
         f"HTTP {status}",
     )
 
-    status, payload, body = http_request(f"{args.loki_url}/ready")
+    status, payload, _body = http_request(f"{args.loki_url}/ready")
     add(
         "loki_ready",
         PASS if status == 200 else FAIL,
         f"HTTP {status}",
     )
 
-    status, payload, body = http_request(f"{args.tempo_url}/ready")
+    status, payload, _body = http_request(f"{args.tempo_url}/ready")
     add(
         "tempo_ready",
         PASS if status == 200 else FAIL,
         f"HTTP {status}",
     )
 
-    status, payload, body = http_request(f"{args.grafana_url}/api/health")
+    status, payload, _body = http_request(f"{args.grafana_url}/api/health")
     add(
         "grafana_health",
         PASS if status == 200 else WARN,
@@ -257,7 +256,7 @@ def main() -> int:
     # Loki label sanity
     # ------------------------------------------------------------------
 
-    status, payload, body = http_request(f"{args.loki_url}/loki/api/v1/labels")
+    status, payload, _body = http_request(f"{args.loki_url}/loki/api/v1/labels")
 
     labels = []
     if isinstance(payload, dict):

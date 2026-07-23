@@ -26,7 +26,6 @@ import urllib.error
 import urllib.request
 from collections import defaultdict
 
-
 # -- Config --
 
 DEFAULT_GATEWAY = os.environ.get("GATEWAY_URL", "http://localhost:8000")

@@ -52,7 +52,6 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, wait
 
-
 DEFAULT_GATEWAY = os.environ.get("GATEWAY_URL", "http://localhost:8000")
 
 DEFAULT_HEALTHY_ENDPOINTS = "GET /health,GET /fibonacci?n=10"
