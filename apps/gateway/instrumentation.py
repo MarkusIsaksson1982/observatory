@@ -11,26 +11,25 @@ Configures:
 
 import logging
 import os
-from typing import Optional
 
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
+from opentelemetry.sdk.resources import SERVICE_NAME, SERVICE_VERSION, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from pythonjsonlogger import jsonlogger
 
 try:
     from opentelemetry._logs import set_logger_provider
+    from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
     from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
     from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-    from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 except ImportError:
+    from opentelemetry.exporter.otlp.proto.grpc.log_exporter import OTLPLogExporter
     from opentelemetry.logs import set_logger_provider
     from opentelemetry.sdk.logs import LoggerProvider, LoggingHandler
     from opentelemetry.sdk.logs.export import BatchLogRecordProcessor
-    from opentelemetry.exporter.otlp.proto.grpc.log_exporter import OTLPLogExporter
 
 
 def setup_telemetry() -> trace.Tracer:
@@ -153,10 +152,10 @@ def get_tracer() -> trace.Tracer:
 # Manual span helpers for business logic
 class BusinessSpans:
     """Helper class for common business span patterns."""
-    
+
     def __init__(self, tracer: trace.Tracer):
         self.tracer = tracer
-    
+
     def http_call(self, method: str, url: str, service: str) -> trace.Span:
         """Create span for outbound HTTP call with standard attributes."""
         return self.tracer.start_span(
@@ -168,7 +167,7 @@ class BusinessSpans:
                 "service.name": service,
             }
         )
-    
+
     def business_operation(self, operation: str, **attributes) -> trace.Span:
         """Create span for business operation."""
         return self.tracer.start_span(
@@ -176,11 +175,11 @@ class BusinessSpans:
             kind=trace.SpanKind.INTERNAL,
             attributes=attributes
         )
-    
+
     def database_query(self, query: str, table: str) -> trace.Span:
         """Create span for database query."""
         return self.tracer.start_span(
-            f"db.query",
+            "db.query",
             kind=trace.SpanKind.CLIENT,
             attributes={
                 "db.statement": query[:200],  # Truncate long queries
@@ -194,7 +193,7 @@ class BusinessSpans:
 def record_with_exemplar(histogram, value: float, attributes: dict = None) -> None:
     """
     Record a value with current trace as exemplar.
-    
+
     Args:
         histogram: OpenTelemetry Histogram instrument
         value: Value to record

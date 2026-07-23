@@ -21,13 +21,11 @@ import sys
 import os
 import json
 import random
-import string
 import time
 import threading
 import urllib.request
 import urllib.error
 from collections import defaultdict
-from datetime import datetime
 from typing import Optional
 
 
@@ -233,7 +231,7 @@ def print_summary(state: LoadGeneratorState) -> None:
     rps = state.request_count / elapsed if elapsed > 0 else 0
 
     print(f"\n{Colors.BOLD}{'='*60}")
-    print(f"  LOAD TEST SUMMARY")
+    print("  LOAD TEST SUMMARY")
     print(f"{'='*60}{Colors.RESET}")
     print(f"  Duration:       {elapsed:.1f}s")
     print(f"  Total requests: {state.request_count}")
@@ -287,25 +285,38 @@ def parse_args():
     while i < len(sys.argv):
         arg = sys.argv[i]
         if arg == "--gateway" and i + 1 < len(sys.argv):
-            args["gateway"] = sys.argv[i + 1]; i += 2
+            args["gateway"] = sys.argv[i + 1]
+            i += 2
         elif arg == "--rate" and i + 1 < len(sys.argv):
-            args["rate"] = float(sys.argv[i + 1]); i += 2
+            args["rate"] = float(sys.argv[i + 1])
+            i += 2
         elif arg == "--duration" and i + 1 < len(sys.argv):
-            args["duration"] = float(sys.argv[i + 1]); i += 2
+            args["duration"] = float(sys.argv[i + 1])
+            i += 2
         elif arg == "--error-rate" and i + 1 < len(sys.argv):
-            args["error-rate"] = float(sys.argv[i + 1]); i += 2
+            args["error-rate"] = float(sys.argv[i + 1])
+            i += 2
         elif arg == "--heavy-pct" and i + 1 < len(sys.argv):
-            args["heavy-pct"] = float(sys.argv[i + 1]); i += 2
+            args["heavy-pct"] = float(sys.argv[i + 1])
+            i += 2
         elif arg == "--no-color":
-            args["color"] = False; i += 1
+            args["color"] = False
+            i += 1
         elif arg in ("-h", "--help"):
-            print(__doc__); sys.exit(0)
+            print(__doc__)
+            sys.exit(0)
         else:
-            positional.append(arg); i += 1
+            positional.append(arg)
+            i += 1
 
     if not args["color"]:
-        Colors.RESET = ""; Colors.BOLD = ""; Colors.RED = ""
-        Colors.GREEN = ""; Colors.YELLOW = ""; Colors.CYAN = ""; Colors.DIM = ""
+        Colors.RESET = ""
+        Colors.BOLD = ""
+        Colors.RED = ""
+        Colors.GREEN = ""
+        Colors.YELLOW = ""
+        Colors.CYAN = ""
+        Colors.DIM = ""
 
     return args
 
@@ -333,7 +344,7 @@ def main() -> int:
     print(f"\n  Checking gateway at {args['gateway']}...", end="", flush=True)
     if not verify_gateway(args["gateway"]):
         print(f"\n  {Colors.RED}[FAIL]{Colors.RESET} Gateway unreachable at {args['gateway']}")
-        print(f"  Is docker-compose up? Run: docker-compose up -d")
+        print("  Is docker-compose up? Run: docker-compose up -d")
         return 1
     print(f" {Colors.GREEN}[OK]{Colors.RESET}")
 

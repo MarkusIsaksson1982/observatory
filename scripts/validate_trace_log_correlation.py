@@ -308,7 +308,7 @@ def main() -> int:
         correlation_prefix = f"validate-{trace_id[:12]}"
 
         queries = [
-            f'{{service_name="gateway"}} | correlation_id =~ "validate-.*"',
+            '{service_name="gateway"} | correlation_id =~ "validate-.*"',
             f'{{service_name="gateway"}} | correlation_id = "{correlation_prefix}"',
             f'{{service_name="gateway"}} |= "{correlation_prefix}"',
         ]

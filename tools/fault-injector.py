@@ -467,10 +467,10 @@ def main() -> int:
     print(f"Target rate:    {args.rate:.1f} req/s")
     print(f"Error ratio:    {error_ratio * 100:.1f}%")
     print(f"Timeout:        {args.timeout:.1f}s")
-    print(f"Healthy endpoints:")
+    print("Healthy endpoints:")
     for method, path in healthy_endpoints:
         print(f"  {method:6} {path}")
-    print(f"Fault endpoints:")
+    print("Fault endpoints:")
     for method, path in fault_endpoints:
         print(f"  {method:6} {path}")
     print()

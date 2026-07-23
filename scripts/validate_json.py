@@ -113,7 +113,7 @@ def main() -> int:
         print(f"\n{total_errors} error(s) found")
         return 1
     else:
-        print(f"\nAll dashboards valid")
+        print("\nAll dashboards valid")
         return 0
 
 
