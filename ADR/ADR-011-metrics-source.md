@@ -76,16 +76,7 @@ A further practical finding was that Tempo's span-metrics histogram buckets do *
 
 **Tempo metrics-generator is the primary source of RED metrics for Observatory.**
 
-Alloy's spanmetrics connector is retained in the configuration for reference and fallback, but its metrics output is disabled:
-
-```river
-otelcol.connector.spanmetrics "default" {
-  // ...
-  output {
-    metrics = []  // Disabled: Tempo metrics-generator is primary (ADR-011)
-  }
-}
-```
+Alloy's spanmetrics connector was removed entirely during Gemini's cleanup (see DECISION_LOG). Tempo metrics-generator is the sole source of RED metrics:
 
 The RED dashboard and SLO rules use Tempo-generated metric families:
 
