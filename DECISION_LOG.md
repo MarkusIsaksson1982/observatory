@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-07-24
+
+**Decision:** PLAYBOOK.md: "Business KPI" replaced with "System Overview" across all three references (interview Q&A, stakeholder briefs, dashboard genres).
+**Reason:** "Business KPI" dashboard was never built. The actual third dashboard is `system-overview.json` (scraped services, aggregate request rate, log volume, service map). Keeping a phantom genre would mislead recruiters.
+
+**Decision:** PLAYBOOK.md: Ansible interview answer now cites `DECISION_LOG.md` instead of ADR-009.
+**Reason:** ADR-009 is about dashboard provisioning (YAML vs Terraform), not Ansible. GLM-5.2 caught the citation mismatch. Ansible is a tooling decision, not an architectural decision — `DECISION_LOG.md` is the correct reference.
+
+**Decision:** COLLABORATION.md: Model Role Assignments table rebuilt from actual 7-round track record.
+**Reason:** Old table was carried from the turn-one template and did not reflect actual contributions. Gemini earned A ratings across 4 rounds (dashboard audit, architecture diagram, deployer guide, Alloy cleanup). DeepSeek earned A/A- for consistency auditing and code hardening. Neither is "weaker" or "least practical."
+
+**Decision:** G1 (Alloy spanmetrics vs Tempo) and G3 (publication readiness) marked as RESOLVED in COLLABORATION.md.
+**Reason:** G1 resolved by ADR-011 (tempo metrics-generator accepted, Alloy spanmetrics removed). G3 resolved by CURRENT_STATE.md (all documentation current, fresh clone reproducibility verified).
+
+---
+
 ## 2026-07-23
 
 **Decision:** Qwen's fault injector integrated as-is — no gateway code changes needed.
