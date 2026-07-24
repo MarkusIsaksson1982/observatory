@@ -1,7 +1,7 @@
 # Makefile for Observatory
 # Core commands only - additional targets added when implemented
 
-.PHONY: up down logs validate lint help
+.PHONY: up down logs validate lint sloth help
 
 # Default target
 help:
@@ -12,6 +12,7 @@ help:
 	@echo "  make down        - Stop and remove all containers"
 	@echo "  make logs        - Follow all service logs"
 	@echo "  make validate    - Health check all services"
+	@echo "  make sloth       - Generate SLO rules from sloth spec"
 	@echo "  make lint        - Run all linters"
 	@echo "  make help        - Show this help"
 
@@ -27,6 +28,7 @@ up:
 	@echo "  Alloy (OTLP):     http://localhost:4317 (gRPC) / http://localhost:4318 (HTTP)"
 	@echo "  Alloy (metrics):  http://localhost:12345"
 	@echo "  Gateway:          http://localhost:8000"
+	@echo "  Grafana:          http://localhost:3000 (admin/admin)"
 
 # Stop and remove all containers
 down:
@@ -43,6 +45,18 @@ validate:
 	@curl -sf http://localhost:12345/-/healthy >/dev/null && echo "  ✓ Alloy healthy" || (echo "  ✗ Alloy unhealthy"; exit 1)
 	@curl -sf http://localhost:8000/health >/dev/null && echo "  ✓ Gateway healthy" || (echo "  ✗ Gateway unhealthy"; exit 1)
 	@echo "All services healthy! ✓"
+
+# Generate SLO rules using Sloth
+sloth:
+	@echo "Generating Sloth rules..."
+	docker run --rm --user root \
+		-v ${PWD}/sloth:/input \
+		slok/sloth:latest \
+		generate \
+		-i /input/gateway-slo.yaml \
+		-o /input/gateway-slo-rules.yaml \
+		--no-color
+	@echo "Sloth rules generated! ✓"
 
 # Linting
 lint:
