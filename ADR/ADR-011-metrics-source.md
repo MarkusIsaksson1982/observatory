@@ -228,8 +228,8 @@ The decision is scoped specifically to **trace-derived RED metrics**.
 - **Tempo becomes critical for RED metrics and SLOs.**
   If Tempo's metrics-generator is disabled, misconfigured, or unable to remote-write to Mimir, RED dashboards and SLO recording rules lose their primary data source.
 
-- **Alloy spanmetrics remains present but disabled.**
-  The connector is intentionally retained as a fallback, but this creates a small risk of confusion. The disabled output must be clearly documented.
+- **Alloy spanmetrics connector was fully removed.**
+  The connector block was deleted from `config.river` during Gemini's cleanup, not just disabled. This eliminates the confusion risk of a visible-but-inactive component. To restore it, re-add the `otelcol.connector.spanmetrics` block from git history or from this ADR's illustrative snippet above.
 
 ### Neutral
 
@@ -239,8 +239,8 @@ The decision is scoped specifically to **trace-derived RED metrics**.
 - **Recording-rule abstraction deferred.**
   A canonical recording-rule layer could later normalize Tempo labels into a common metric model (e.g., `service` → `service_name`). This is not required now because Tempo is the only active RED source.
 
-- **Fallback path retained.**
-  Alloy spanmetrics can be re-enabled by changing `output { metrics = [] }` to forward into the Prometheus exporter path. However, re-enabling it would require either disabling Tempo metrics-generator or introducing explicit normalization/recording rules to avoid double-counting.
+- **Re-enabling spanmetrics requires re-adding the connector.**
+  The `otelcol.connector.spanmetrics` block was deleted, not disabled. Restoring it means re-adding the full block from git history and wiring its output into the Prometheus exporter path. Re-enabling it would also require either disabling Tempo metrics-generator or introducing normalization rules to avoid double-counting.
 
 ## Technical detail: Tempo histogram buckets and `le="0.5"`
 
