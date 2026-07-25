@@ -40,7 +40,7 @@
 | 15 | Dashboard design principles (before/after case study) | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 3 |
 | 16 | Consumer onboarding / handholding | `docs/onboarding-guide.md` | ✔ | ✔ | ✔ | ✔ | 6 |
 | 17 | Training sessions | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 6 |
-| 18 | k6 load testing & fault injection | *Planned: v0.6.0+* | ☐ | ☐ | ☐ | ☐ | 2 |
+| 18 | Load testing & fault injection | `tools/load-generator.py` (zero-dep, rate-limited), `tools/fault-injector.py` (SLO burn-rate, probe-only mode) | ✔ | ✔ | ✔ | ✔ | 2 |
 
 ---
 
@@ -96,13 +96,12 @@
 
 | Component | Target | Status |
 |-----------|--------|--------|
-| `terraform/` — Grafana provider (datasources, folders, dashboards, alerts) | v0.6.0 | Planned |
-| `ansible/` — Fleet bootstrap (Docker, Alloy, certs) | v0.6.0 | Planned |
-| `apps/orders/`, `apps/payments/` — Microservice stubs for distributed trace story | v0.6.0 | Planned |
-| `scripts/load-test.k6.js` — k6 load generation + fault injection | v0.6.0+ | Planned |
+| `terraform/` — Grafana provider (datasources, folders, dashboards, alerts) | v0.5.0 | Done |
+| `ansible/` — Host bootstrap (Docker, Docker Compose, user setup) | v0.6.0 | Done |
+| `tools/load-generator.py` + `tools/fault-injector.py` — Zero-dep Python load testing | v0.6.0 | Done |
 | `docs/onboarding-guide.md` — 15-min timed runbook | v0.6.0 | Done |
-| `training/` — 5-part observability training curriculum | v1.0.0 | Planned |
-| Before/after dashboard redesign case study | v1.0.0 | Planned |
+| `sloth/` — Multi-window multi-burn-rate SLO alerting | v0.4.0 | Done |
+| Dashboard screenshots (PNG) via Grafana Image Renderer | v1.0.0 | In progress |
 
 ---
 

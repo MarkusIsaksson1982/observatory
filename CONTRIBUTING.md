@@ -27,19 +27,20 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 ### Scopes
 | Scope | Area |
 |-------|------|
-| `apps` | Gateway, Orders, Payments services |
+| `apps` | Gateway service |
 | `alloy` | Alloy configuration |
 | `grafana` | Dashboards, datasources, provisioning |
 | `terraform` | IaC for Grafana resources |
-| `ansible` | Fleet bootstrap playbooks |
-| `scripts` | Load gen, fault injection, validation |
+| `ansible` | Host bootstrap playbooks |
+| `tools` | Load gen, fault injection, screenshots |
+| `scripts` | Validation scripts |
 | `ci` | GitHub Actions workflows |
-| `docs` | Documentation (ADRs, specs, runbooks) |
+| `docs` | Documentation (ADRs, runbooks, portfolio) |
 | `adrs` | Architecture Decision Records |
 
 ### Examples
 ```
-feat(apps): add orders service with OTel instrumentation
+feat(apps): add OpenTelemetry auto-instrumentation
 fix(alloy): correct Loki label cardinality in log pipeline
 docs(adr): add ADR-001 Alloy vs OTel Collector
 chore(ci): add dashboard JSON schema validation
@@ -51,18 +52,11 @@ chore(ci): add dashboard JSON schema validation
 
 ```
 main                    # Protected; only via PR
-├── phase-1-foundation  # Core stack + 1 service
-├── phase-2-services    # 3 services + correlation
-├── phase-3-dashboards  # 3 genres + before/after
-├── phase-4-slo         # Burn-rate + simulator
-├── phase-5-iac         # TF + Ansible
-├── phase-6-docs        # Stakeholder briefs, ADRs, training
-└── phase-7-polish      # Portfolio integration
 ```
 
-- One phase per branch, merged sequentially
-- Phase branches short-lived (3–5 days)
 - `main` always runnable via `docker compose up`
+- Feature branches: `feat/<scope>-<description>`, `fix/<scope>-<description>`
+- Squash-merge with conventional commit message
 
 ---
 
@@ -73,7 +67,6 @@ main                    # Protected; only via PR
 | **Pre-commit** | `make lint` (ruff, hadolint, terraform fmt, yamllint) |
 | **Pre-push** | `make validate` (docker-compose config, TF plan, dashboard JSON syntax) |
 | **PR merge** | All CI green + architecture decision logged if new ADR needed |
-| **Phase complete** | `make up && make load && make validate` passes; screenshots updated |
 
 ---
 

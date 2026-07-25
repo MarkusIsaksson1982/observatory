@@ -34,7 +34,7 @@ No static thresholds. **Multi-window, multi-burn-rate alerts** (Google SRE Workb
 Three genres, three audiences:
 - **Infra/RED** → On-call engineer: "Is the service healthy right now?"
 - **Reliability/SLO** → SLO owner: "Are we burning error budget?"
-- **Business KPI** → Product manager: "Is checkout converting?"
+- **System Overview** → Platform engineer: "Is the full stack healthy?"
 Plus a **before/after redesign case study** with written rationale per change — proving "dashboard design principles" (job req) not just "I made dashboards."
 
 ---
@@ -45,13 +45,13 @@ Plus a **before/after redesign case study** with written rationale per change �
 |----------|----------|
 | **LGTM Stack** | `docker-compose.yml`, `alloy/config.river`, `grafana/provisioning/` |
 | **OpenTelemetry** | `apps/gateway/instrumentation.py` — auto + manual spans, exemplars, traceID logs |
-| **SLOs & Burn-Rate** | `docs/SPEC_SLO.md`, `mimir/rules/burn-rate.yml`, burn-rate simulator |
-| **Terraform** | `terraform/modules/grafana-*` — datasources, dashboards, alerts, SLOs as code |
-| **Ansible** | `ansible/roles/{docker,alloy}` — fleet bootstrap, not Grafana resources |
-| **Dashboard as Code** | JSON in `grafana/dashboards/`, TF `grafana_dashboard` resources, CI validation |
+| **SLOs & Burn-Rate** | `sloth/gateway-slo.yaml`, `sloth/gateway-slo-rules.yaml`, `mimir-rules/tenant-0/` |
+| **Terraform** | `terraform/dashboards.tf`, `terraform/datasources.tf`, `terraform/alerts.tf` — Grafana provider as code |
+| **Ansible** | `ansible/playbook.yml`, `ansible/group_vars/all.yml` — host provisioning with Jinja2 templating |
+| **Dashboard as Code** | Terraform `grafana_dashboard` resources, CI validation |
 | **Consumer Onboarding** | `docs/onboarding-guide.md` — 15-min timed runbook |
 | **Training** | `training/01-05` — metrics, logs, traces, correlation, OTel basics |
-| **Incident Practice** | `docs/DEMONSTRATION_SCENARIOS.md` — 5 scripted incidents (latency, regression, leak, budget burn, cardinality) |
+| **Incident Practice** | `references/PLAYBOOK.md` — 5 scripted demo scenarios with interview Q&A |
 | **Documentation** | ADRs, runbooks, stakeholder briefs, architecture fitness checklist |
 
 ---

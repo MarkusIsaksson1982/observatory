@@ -69,6 +69,14 @@ make validate        # Health check all services
 - **slo-burn-rate** – 9 SLO panels: availability, error budget, burn rate (5m/30m), multi-window SLI trend, SLO inventory table.
 - **system-overview** – High-level health, aggregate request rate, error budget burn, log volume, Tempo service map.
 
+### Dashboard Previews
+
+![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate.png)
+
+![Service Health RED Dashboard](docs/screenshots/service-health-red.png)
+
+![System Overview Dashboard](docs/screenshots/system-overview.png)
+
 ---
 
 ## SLO Targets (Live in Mimir)

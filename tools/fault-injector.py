@@ -35,7 +35,7 @@ Usage examples:
 
 Notes:
   - This script uses only the Python standard library.
-  - It sends W3C traceparent headers so generated traces are easy to correlate.
+  - It sends X-Correlation-ID headers for log correlation.
   - It does not modify any service code.
   - If you later add healthy orders/payments services, update --fault endpoints
     to something that actually fails.
@@ -44,7 +44,6 @@ Notes:
 import argparse
 import os
 import random
-import secrets
 import sys
 import threading
 import time
@@ -120,11 +119,9 @@ def parse_endpoints(spec: str):
 
 
 def build_headers(correlation_prefix: str):
-    trace_id = secrets.token_hex(16)
-    span_id = secrets.token_hex(8)
+    trace_id = os.urandom(16).hex()
 
     return {
-        "traceparent": f"00-{trace_id}-{span_id}-01",
         "X-Correlation-ID": f"{correlation_prefix}-{trace_id[:8]}",
         "User-Agent": "observatory-fault-injector/1.0",
     }
