@@ -4,6 +4,7 @@ Generates realistic traffic against the FastAPI gateway service to populate
 Grafana dashboards with LIVE data for portfolio presentation.
 
 Features:
+  - W3C traceparent headers for trace context propagation (W3C Trace Context Level 2)
   - Rate limiting with sliding window
   - Error injection (10-15% chance per endpoint)
   - Latency tracking per endpoint
@@ -19,6 +20,7 @@ Usage:
 import json
 import os
 import random
+import secrets
 import sys
 import threading
 import time
@@ -69,6 +71,32 @@ if sys.platform != "win32" or os.environ.get("FORCE_COLOR"):
     Colors.DIM     = "\033[2m"
 
 
+# -- W3C Trace Context --
+
+def build_traceparent() -> str:
+    """Generate a W3C Trace Context Level 2 traceparent header value.
+
+    Format: 00-{trace_id}-{span_id}-{trace_flags}
+
+    Fields:
+      - version:      "00" (W3C Trace Context v1)
+      - trace-id:     32 hex chars (16 bytes) - globally unique trace identifier
+      - parent-id:    16 hex chars (8 bytes)  - this span's identifier
+      - trace-flags:  "01" (sampled = true)
+
+    All values use secrets.token_hex() for cryptographically random generation.
+    All-zeros values are forbidden by the spec and never generated here.
+
+    Returns:
+        A 55-character traceparent header value, e.g.:
+        "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+    """
+    trace_id = secrets.token_hex(16)  # 32 hex chars = 16 bytes
+    span_id = secrets.token_hex(8)    # 16 hex chars = 8 bytes
+    trace_flags = "01"                # sampled = true
+    return f"00-{trace_id}-{span_id}-{trace_flags}"
+
+
 # -- State --
 
 class LoadGeneratorState:
@@ -90,14 +118,23 @@ class LoadGeneratorState:
 def http_request(url: str, method: str = "GET",
                  data: bytes | None = None,
                  timeout: int = 5) -> tuple[int, float]:
-    """Make HTTP request, return (status_code, elapsed_ms)."""
+    """Make HTTP request with W3C traceparent header, return (status_code, elapsed_ms)."""
     start = time.monotonic()
+
+    headers = {}
+    if data:
+        headers["Content-Type"] = "application/json"
+
+    # W3C Trace Context: propagate traceparent for end-to-end trace correlation
+    headers["traceparent"] = build_traceparent()
+    headers["User-Agent"] = "observatory-loadgen/0.2"
+
     try:
         req = urllib.request.Request(
             url,
             data=data,
             method=method,
-            headers={"Content-Type": "application/json"} if data else {},
+            headers=headers,
         )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             elapsed_ms = (time.monotonic() - start) * 1000
@@ -178,7 +215,8 @@ def generate_load(state: LoadGeneratorState, gateway_url: str,
     print(f"{Colors.GREEN}  [>>>] Generating load at {rate:.1f} req/s for {duration}s")
     print(f"        Gateway: {gateway_url}")
     print(f"        Threads: {thread_pool_size}  Error rate: {error_rate*100:.0f}%")
-    print(f"        Heavy endpoint mix: {heavy_pct*100:.0f}%{Colors.RESET}\n")
+    print(f"        Heavy endpoint mix: {heavy_pct*100:.0f}%")
+    print(f"        Trace context: W3C traceparent (enabled){Colors.RESET}\n")
 
     while state.running and time.monotonic() < end_time:
         limiter.wait()
