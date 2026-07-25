@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-07-25
+
+**Decision:** P99 latency alert metric corrected from `traces_spanmetrics_duration_milliseconds_bucket` to `traces_spanmetrics_latency_bucket`.
+**Reason:** GLM-5.2 static analysis caught the mismatch. alerts.tf queried a non-existent metric (leftover from an earlier naming assumption). The actual Tempo metric is `traces_spanmetrics_latency_bucket` (confirmed by dashboard queries and Sloth rules). The alert would never fire. Also corrected legend from "ms" to "s" since the metric is in seconds.
+
+**Decision:** SLO latency error_query inverted to correctly compute slow requests.
+**Reason:** GLM-5.2 found that `error_query` used `le="0.5"` (fast requests ≤500ms) as "errors." In Sloth's events SLI, error_query must return bad events. The ratio was always 1.0 (fast/total ≈ 1.0 under normal load), so the SLO never burned. Fixed: `error_query = total_count - bucket{le="0.5"}` = slow requests. Sloth rules regenerated (v0.16.0). Terraform apply pending (Docker Desktop offline).
+
+**Decision:** `.env.example` GRAFANA_VERSION updated from 11.1.0 to 13.1.0.
+**Reason:** DeepSeek audit caught the stale pin. docker-compose.yml uses grafana:13.1.0. The example file was never updated after the Grafana version bump.
+
+---
+
 ## 2026-07-24
 
 **Decision:** PLAYBOOK.md: "Business KPI" replaced with "System Overview" across all three references (interview Q&A, stakeholder briefs, dashboard genres).
