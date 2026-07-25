@@ -100,7 +100,7 @@
 | `ansible/` — Fleet bootstrap (Docker, Alloy, certs) | v0.6.0 | Planned |
 | `apps/orders/`, `apps/payments/` — Microservice stubs for distributed trace story | v0.6.0 | Planned |
 | `scripts/load-test.k6.js` — k6 load generation + fault injection | v0.6.0+ | Planned |
-| `docs/onboarding-guide.md` — 15-min timed runbook | v1.0.0 | Planned |
+| `docs/onboarding-guide.md` — 15-min timed runbook | v0.6.0 | Done |
 | `training/` — 5-part observability training curriculum | v1.0.0 | Planned |
 | Before/after dashboard redesign case study | v1.0.0 | Planned |
 

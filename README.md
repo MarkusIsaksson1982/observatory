@@ -91,6 +91,7 @@ make validate        # Health check all services
 ## Documentation
 
 - [Deployer Guide](./docs/deployer-guide.md) – 3-minute walkthrough for demonstrating the stack.
+- [Onboarding Guide](./docs/onboarding-guide.md) – 15-minute guide for adding a new service to the observability stack.
 - [ADRs](./ADR/) – Architecture decisions (Alloy choice, labels, SLOs, metrics source).
 - [Decision Log](./DECISION_LOG.md) – Chronological record of all architectural decisions.
 - [Portfolio Evidence](./docs/PORTFOLIO_EVIDENCE.md) – Direct mapping to job requirements.
