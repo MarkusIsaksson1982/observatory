@@ -59,7 +59,7 @@ Copy to `mimir-rules/tenant-0/`. Mimir reloads rules from local filesystem.
 
 1. `python tools/load-generator.py --rate 10 --duration 60` — generates `traces_spanmetrics_*`
 2. Grafana → Service Health RED: filter `service="orders"` — request rate appears
-3. Click trace → Logs — Loki query `{service_name="orders"} | json | traceID="<id>"` — OTLP/HTTP structured metadata path, not regex
+3. Click trace → Logs — Loki query `{service_name="orders"} | traceID="<id>"` — OTLP/HTTP structured metadata path, not regex
 4. `python tools/fault-injector.py --probe-only` — proves `/orders` returns 503 (natural failure, no gateway change needed) → burn-rate panel becomes non-empty
 
 **Done criteria:**
