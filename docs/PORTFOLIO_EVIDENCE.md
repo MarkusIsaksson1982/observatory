@@ -35,10 +35,10 @@
 | 10 | Technical architecture governance | `ADR/` (5 ADRs), `DECISION_LOG.md` | ✔ | ✔ | ✔ | ✔ | 6 |
 | 11 | Strategic ecosystem evaluation & upgrades | `ADR/ADR-001-collector-choice.md`, `ADR/ADR-011-metrics-source.md` | ✔ | ✔ | ✔ | ✔ | 1,6 |
 | 12 | Observability as a practice (not just tools) | `DECISION_LOG.md`, `alloy/config.river` (low cardinality enforcement) | ✔ | ✔ | ✔ | ✔ | 4,6 |
-| 13 | Terraform (Grafana provider) | *Planned: v0.6.0* | ☐ | ☐ | ☐ | ☐ | 5 |
-| 14 | Ansible (host bootstrap) | *Planned: v0.6.0* | ☐ | ☐ | ☐ | ☐ | 5 |
+| 13 | Terraform (Grafana provider) | `terraform/dashboards.tf`, `terraform/datasources.tf`, `terraform/alerts.tf` | ✔ | ✔ | ✔ | ✔ | 5 |
+| 14 | Ansible (host bootstrap) | `ansible/playbook.yml`, `ansible/group_vars/all.yml` | ✔ | ✔ | ✔ | ✔ | 5 |
 | 15 | Dashboard design principles (before/after case study) | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 3 |
-| 16 | Consumer onboarding / handholding | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 6 |
+| 16 | Consumer onboarding / handholding | `docs/onboarding-guide.md` | ✔ | ✔ | ✔ | ✔ | 6 |
 | 17 | Training sessions | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 6 |
 | 18 | k6 load testing & fault injection | *Planned: v0.6.0+* | ☐ | ☐ | ☐ | ☐ | 2 |
 
@@ -76,7 +76,7 @@
 
 ### "How do you manage dashboard lifecycles and provisioning?"
 
-> "Dashboards and datasources are provisioned as code in Grafana's YAML provisioning, so the container starts with the same panels and datasources every time. The RED dashboard has six panels and the SLO dashboard uses Sloth-generated recording rules. Terraform is planned for v0.6.0 to add plan/apply and drift detection."
+> "Dashboards and datasources are provisioned as code using Terraform with the Grafana provider, so the container starts with the same panels and datasources every time. The RED dashboard has six panels and the SLO dashboard uses Sloth-generated recording rules. Terraform manages plan/apply and drift detection."
 
 ### "Can you describe distributed trace context correlation?"
 

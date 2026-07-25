@@ -93,9 +93,8 @@ If a change doesn't improve any of these, it should be deferred.
 ## Adding New Architecture Decisions
 
 1. Create `ADR/ADR-XXX-title.md` using template below
-2. Link from `PROJECT_CONSTITUTION.md` Section 4
-3. Update `DECISION_LOG.md`
-4. Reference in PR description
+2. Update `DECISION_LOG.md`
+3. Reference in PR description
 
 ### ADR Template
 

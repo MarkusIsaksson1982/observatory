@@ -15,6 +15,7 @@ help:
 	@echo "  make load        - Generate load to populate dashboards (30s burst)"
 	@echo "  make sloth       - Generate SLO rules from sloth spec"
 	@echo "  make lint        - Run all linters"
+	@echo "  make clean       - Remove build artifacts"
 	@echo "  make help        - Show this help"
 
 # Start all services

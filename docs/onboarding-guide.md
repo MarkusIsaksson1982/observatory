@@ -66,7 +66,7 @@ Copy to `mimir-rules/tenant-0/`. Mimir reloads rules from local filesystem.
 - Trace appears in Tempo, logs correlate, dashboard populates, SLO burn-rate has data
 - Consumer can now answer "Is orders healthy?" and "Are we burning budget?" without paging platform team
 
-**Anti-patterns to avoid (from CONTRIBUTION_AUDIT.md Key Adaptation Patterns):**
+**Anti-patterns to avoid:**
 - Don't add `user_id` label — cardinality explosion
 - Don't use `${DS_PROMETHEUS}` in provisioned JSON — use UID `mimir`
 - Don't query `service_name` in Sloth metrics — use `sloth_service`

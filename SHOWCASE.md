@@ -77,15 +77,13 @@ make up
 
 | Interest | Start Here |
 |----------|------------|
-| Architecture | `PROJECT_CONSTITUTION.md` (governance), `ADR/` (decisions) |
+| Architecture | `DECISION_LOG.md` (governance), `ADR/` (decisions) |
 | Telemetry Pipeline | `alloy/config.river`, `apps/gateway/instrumentation.py` |
-| Dashboards | `grafana/dashboards/` (JSON), `grafana/provisioning/` |
-| SLOs & Alerting | `docs/SPEC_SLO.md`, `mimir/rules/` |
-| Terraform / Ansible | `terraform/modules/grafana-*`, `ansible/roles/alloy/` |
-| Incident Walkthroughs | `docs/DEMONSTRATION_SCENARIOS.md` (5 scenarios) |
-| Interview Prep | `docs/INTERVIEW_QUESTIONS.md` (20 Q&A → ADRs) |
-| Portfolio Mapping | `docs/PORTFOLIO_EVIDENCE.md` (18 reqs × 4 quality dims) |
-| Daily Progress | `IMPLEMENTATION_STATUS.md` (live) |
+| Dashboards | `grafana/provisioning/dashboards/` (JSON) |
+| SLOs & Alerting | `sloth/gateway-slo.yaml`, `mimir-rules/tenant-0/` |
+| Terraform / Ansible | `terraform/`, `ansible/` |
+| Onboarding | `docs/onboarding-guide.md`, `docs/deployer-guide.md` |
+| Portfolio Mapping | `docs/PORTFOLIO_EVIDENCE.md` |
 
 ---
 
@@ -104,4 +102,4 @@ No setup required. Same dashboards, same data, read-only.
 
 ---
 
-*Built as a portfolio demonstration of observability engineering practice. Governed by [PROJECT_CONSTITUTION.md](PROJECT_CONSTITUTION.md).*
+*Built as a portfolio demonstration of observability engineering practice.*
