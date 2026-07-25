@@ -90,6 +90,34 @@
 
 > "I evaluate tools through ADRs. ADR-001 chose Alloy over the EOL Grafana Agent and vanilla OTel Collector. ADR-011 chose Tempo metrics-generator as the primary RED source because it aligns with Grafana's trace-to-metrics architecture and supports exemplars. Each ADR records alternatives, rationale, and consequences."
 
+### "Why Grafana Alloy instead of the OpenTelemetry Collector or Grafana Agent?"
+
+> "Grafana Agent reached EOL November 2025. Alloy is Grafana's strategic successor — vendor-neutral OTel Collector distribution with native pipelines for Mimir, Loki, and Tempo. River config is declarative and type-safe. Using Alloy demonstrates staying current with the ecosystem. See ADR-001."
+
+### "Why Mimir instead of Prometheus or VictoriaMetrics?"
+
+> "Mimir is Grafana's horizontally scalable, multi-tenant TSDB with built-in ruler/alerting, Prometheus-compatible API, and native Grafana integration. We run it in single-binary mode for local demos to keep `docker compose up` simple, which signals tradeoff knowledge without paying for operational complexity."
+
+### "Why Loki instead of Elasticsearch or ClickHouse for logs?"
+
+> "Loki's label-based indexing (vs full-text) dramatically reduces storage cost and query latency for observability workflows. Native Grafana integration, LogQL, and Loki's correlation with Tempo via `trace_id` structured metadata make it the cohesive choice for LGTM. See ADR-003."
+
+### "Why Tempo instead of Jaeger or Zipkin?"
+
+> "Tempo's block storage + TraceQL native query language + Grafana-native correlation (exemplars to traces to logs) is the differentiator. We use Tempo's metrics-generator to derive RED metrics directly from traces, which aligns with Grafana Labs' recommended architecture and supports native metric-to-trace click-through. See ADR-011."
+
+### "How do you derive RED metrics without a separate metrics SDK in the app?"
+
+> "Tempo's metrics-generator taps into the trace pipeline, derives request rate, error rate, and latency histograms from server spans (`span_kind="SPAN_KIND_SERVER"`), and remote-writes them to Mimir with exemplars enabled. This eliminates the need for a separate `MeterProvider` in the Python code and provides native metric-to-trace click-through."
+
+### "How do you demonstrate this to a recruiter in 5 minutes?"
+
+> "README first — architecture diagram plus one-command demo. `make up` to start the stack. `python tools/fault-injector.py --duration 30` to show the SLO dashboard budget burning. `terraform plan` to show infrastructure is code, not clicked. Under 5 minutes to 'this person knows their stuff.'"
+
+### "How does this demonstrate 'collaborate with consumers to understand monitoring needs'?"
+
+> "Three dashboard genres map to three personas: On-Call SRE (Service Health RED), SLO Owner (SLO Burn Rate), Platform Engineer (System Overview). Each answers a different question for a different audience. This proves 'translate needs into effective Grafana solutions' from the job posting."
+
 ---
 
 ## Planned Additions (Next Horizons)
