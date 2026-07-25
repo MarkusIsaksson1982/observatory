@@ -45,7 +45,7 @@ slos:
     description: "Latency SLO: 99.5% of HTTP requests complete within 500ms."
     sli:
       events:
-        error_query: sum(rate(traces_spanmetrics_latency_bucket{service="gateway",span_kind="SPAN_KIND_SERVER",le="0.5"}[{{.window}}]))
+        error_query: sum(rate(traces_spanmetrics_latency_count{service="gateway",span_kind="SPAN_KIND_SERVER"}[{{.window}}])) - sum(rate(traces_spanmetrics_latency_bucket{service="gateway",span_kind="SPAN_KIND_SERVER",le="0.5"}[{{.window}}]))
         total_query: sum(rate(traces_spanmetrics_latency_count{service="gateway",span_kind="SPAN_KIND_SERVER"}[{{.window}}]))
     alerting:
       name: GatewayHighLatency

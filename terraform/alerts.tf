@@ -15,7 +15,7 @@
 #
 # Metric source: Tempo metrics-generator → Mimir
 #   traces_spanmetrics_calls_total{service, span_kind, status_code, ...}
-#   traces_spanmetrics_duration_milliseconds_bucket{service, span_kind, le, ...}
+#   traces_spanmetrics_latency_bucket{service, span_kind, le, ...}
 #
 # IMPORTANT: Label is "service" (not "service_name"). Value for gateway: "gateway".
 #
@@ -97,10 +97,10 @@ resource "grafana_rule_group" "observatory_gateway" {
         refId          = "A"
         expr = <<-EOT
           histogram_quantile(0.99,
-            sum(rate(traces_spanmetrics_duration_milliseconds_bucket{service="gateway", span_kind="SPAN_KIND_SERVER"}[5m])) by (le)
+            sum(rate(traces_spanmetrics_latency_bucket{service="gateway", span_kind="SPAN_KIND_SERVER"}[5m])) by (le)
           )
         EOT
-        legendFormat   = "P99 latency ms"
+        legendFormat   = "P99 latency s"
         intervalMs     = 15000
         maxDataPoints  = 400
       })
