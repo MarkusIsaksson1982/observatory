@@ -65,6 +65,7 @@ logs/
 tmp/
 temp/
 *.tmp
+sloth/generated-rules.yaml
 
 # Build
 dist/
