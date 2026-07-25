@@ -1,17 +1,18 @@
 # Makefile for Observatory
 # Core commands only - additional targets added when implemented
 
-.PHONY: up down logs validate lint sloth help
+.PHONY: up down logs validate load lint sloth help
 
 # Default target
 help:
 	@echo "Observatory - Observability Engineering Portfolio"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make up          - Start all services (Gateway + Alloy)"
+	@echo "  make up          - Start all services (6 containers)"
 	@echo "  make down        - Stop and remove all containers"
 	@echo "  make logs        - Follow all service logs"
-	@echo "  make validate    - Health check all services"
+	@echo "  make validate    - Health check all 6 services"
+	@echo "  make load        - Generate load to populate dashboards (30s burst)"
 	@echo "  make sloth       - Generate SLO rules from sloth spec"
 	@echo "  make lint        - Run all linters"
 	@echo "  make help        - Show this help"
@@ -29,6 +30,9 @@ up:
 	@echo "  Alloy (metrics):  http://localhost:12345"
 	@echo "  Gateway:          http://localhost:8000"
 	@echo "  Grafana:          http://localhost:3000 (admin/admin)"
+	@echo "  Loki:             http://localhost:3100"
+	@echo "  Tempo:            http://localhost:3200"
+	@echo "  Mimir:            http://localhost:9009"
 
 # Stop and remove all containers
 down:
@@ -42,9 +46,19 @@ logs:
 # Validate stack health
 validate:
 	@echo "Validating stack health..."
-	@curl -sf http://localhost:12345/-/healthy >/dev/null && echo "  ✓ Alloy healthy" || (echo "  ✗ Alloy unhealthy"; exit 1)
 	@curl -sf http://localhost:8000/health >/dev/null && echo "  ✓ Gateway healthy" || (echo "  ✗ Gateway unhealthy"; exit 1)
-	@echo "All services healthy! ✓"
+	@curl -sf http://localhost:12345/-/healthy >/dev/null && echo "  ✓ Alloy healthy" || (echo "  ✗ Alloy unhealthy"; exit 1)
+	@curl -sf http://localhost:3100/ready >/dev/null && echo "  ✓ Loki healthy" || (echo "  ✗ Loki unhealthy"; exit 1)
+	@curl -sf http://localhost:3200/ready >/dev/null && echo "  ✓ Tempo healthy" || (echo "  ✗ Tempo unhealthy"; exit 1)
+	@curl -sf http://localhost:9009/ready >/dev/null && echo "  ✓ Mimir healthy" || (echo "  ✗ Mimir unhealthy"; exit 1)
+	@curl -sf http://localhost:3000/api/health >/dev/null && echo "  ✓ Grafana healthy" || (echo "  ✗ Grafana unhealthy"; exit 1)
+	@echo "All 6 services healthy! ✓"
+
+# Generate traffic to populate dashboards
+load:
+	@echo "Generating load for 30s..."
+	@python tools/load-generator.py --rate 10 --duration 30
+	@echo "Load generation complete! ✓"
 
 # Generate SLO rules using Sloth
 sloth:

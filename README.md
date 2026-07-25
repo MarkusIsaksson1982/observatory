@@ -83,7 +83,7 @@ make validate        # Health check all services
 
 - **Core**: Grafana, Loki, Tempo, Mimir, Alloy
 - **App**: Python/FastAPI + OpenTelemetry SDK
-- **IaC**: Docker Compose (Terraform planned for v0.6.0)
+- **IaC**: Docker Compose + Terraform (Grafana dashboards, datasources, alert rules)
 - **SLOs**: Sloth (Google SRE multi-window multi-burn-rate)
 
 ---
@@ -99,6 +99,7 @@ make validate        # Health check all services
 ## Tools
 
 - **`tools/load-generator.py`** – Zero-dependency Python load generator for populating dashboards. Rate limiting, error injection, Ctrl+C graceful shutdown. `python tools/load-generator.py --rate 10 --duration 120`
+- **`tools/fault-injector.py`** – Generates controlled failure traffic against `/orders` to drive SLO burn-rate alerting and populate the burn-rate dashboard. `python tools/fault-injector.py --probe-only` (verify 503) or `python tools/fault-injector.py --duration 300 --rate 10 --error-ratio 0.3`
 
 ---
 
