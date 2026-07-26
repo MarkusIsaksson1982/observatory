@@ -76,11 +76,11 @@ make validate        # Health check all 7 services
 
 ### Dashboard Previews
 
-![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate-final.png?raw=true)
+![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate-active-burn.png?raw=true)
 
-![Service Health RED Dashboard](docs/screenshots/service-health-red-final.png?raw=true)
+![Service Health RED Dashboard](docs/screenshots/service-health-red-baseline.png?raw=true)
 
-![System Overview Dashboard](docs/screenshots/system-overview-final.png?raw=true)
+![System Overview Dashboard](docs/screenshots/system-overview-baseline.png?raw=true)
 
 > **Note:** The Service Map panel in System Overview is empty by design — it requires distributed traces with parent/child span relationships, which a single-service demo doesn't produce. In a real deployment with multiple services calling each other, this panel shows a live service dependency graph.
 
