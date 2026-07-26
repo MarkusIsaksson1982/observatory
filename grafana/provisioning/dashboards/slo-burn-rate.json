@@ -270,7 +270,7 @@
         "colorMode": "background",
         "graphMode": "area"
       },
-      "title": "Current Burn Rate",
+      "title": "Burn Rate",
       "description": ">1 = burning error budget too fast. >14.4x = will exhaust in <1 hour (SLO violation imminent)",
       "type": "stat",
       "targets": [
