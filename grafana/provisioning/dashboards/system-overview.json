@@ -18,7 +18,7 @@
       "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 8,
+        "w": 7,
         "h": 6
       },
       "targets": [
@@ -40,9 +40,9 @@
       "title": "Aggregate Request Rate",
       "type": "timeseries",
       "gridPos": {
-        "x": 8,
+        "x": 7,
         "y": 0,
-        "w": 7,
+        "w": 8,
         "h": 6
       },
       "targets": [
@@ -90,6 +90,15 @@
         "y": 6,
         "w": 12,
         "h": 8
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {

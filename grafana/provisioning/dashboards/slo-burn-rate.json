@@ -115,7 +115,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 1
       },
@@ -182,8 +182,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 7,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 1
       },
       "id": 2,
@@ -200,7 +200,7 @@
         "colorMode": "background",
         "graphMode": "area"
       },
-      "title": "Error Budget Remaining",
+      "title": "Error Budget",
       "description": "Remaining error budget = 100 \u2014 (1 - burn_rate) \u2014 SLO target",
       "type": "stat",
       "targets": [
@@ -252,7 +252,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 7,
+        "w": 6,
         "x": 12,
         "y": 1
       },
@@ -318,8 +318,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 5,
-        "x": 19,
+        "w": 6,
+        "x": 18,
         "y": 1
       },
       "id": 4,
@@ -336,7 +336,7 @@
         "colorMode": "background",
         "graphMode": "none"
       },
-      "title": "SLI (Error %)",
+      "title": "SLI Error %",
       "description": "Current error ratio \u2014 100",
       "type": "stat",
       "targets": [
