@@ -14,7 +14,7 @@ resource "grafana_data_source" "mimir" {
   uid  = "mimir"
 
   url  = var.mimir_url
-  is_default = false
+  is_default = true
 
   json_data_encoded = jsonencode({
     timeInterval    = "15s"
