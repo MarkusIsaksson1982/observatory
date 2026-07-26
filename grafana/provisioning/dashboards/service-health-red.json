@@ -291,6 +291,10 @@
         "name": "service",
         "type": "query",
         "query": "label_values(traces_spanmetrics_calls_total, service)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "mimir"
+        },
         "refresh": 1,
         "includeAll": true,
         "allValue": ".*",
