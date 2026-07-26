@@ -13,7 +13,7 @@ This is a portfolio demonstration project, not a production service. Security up
 If you discover a security vulnerability in this repository, please report it responsibly:
 
 1. **Do not** create a public GitHub issue
-2. Email the maintainer directly: **security@observatory.local**
+2. Contact the maintainer directly
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
