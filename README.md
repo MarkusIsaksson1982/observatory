@@ -76,11 +76,11 @@ make validate        # Health check all 7 services
 
 ### Dashboard Previews
 
-![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate.png?raw=true)
+![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate-final.png?raw=true)
 
-![Service Health RED Dashboard](docs/screenshots/service-health-red.png?raw=true)
+![Service Health RED Dashboard](docs/screenshots/service-health-red-final.png?raw=true)
 
-![System Overview Dashboard](docs/screenshots/system-overview.png?raw=true)
+![System Overview Dashboard](docs/screenshots/system-overview-final.png?raw=true)
 
 ---
 
