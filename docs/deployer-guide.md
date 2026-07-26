@@ -25,7 +25,7 @@ Wait approximately 30 seconds for all service health checks to pass.
 Apply Terraform to create datasources, dashboards, folders, and alert rules:
 
 ```bash
-cd terraform && terraform apply -auto-approve && cd ..
+cd terraform && terraform init && terraform apply -auto-approve && cd ..
 ```
 
 This takes ~5 seconds. Grafana is now fully configured with 3 datasources, 3 dashboards, and 2 alert rules.
@@ -34,7 +34,7 @@ This takes ~5 seconds. Grafana is now fully configured with 3 datasources, 3 das
 
 Populate the system with data using one of these methods:
 
-* **Quick:** Runs `make validate` to health-check all 6 services.
+* **Quick:** Runs `make validate` to health-check all 7 services.
 
 ```bash
 make validate

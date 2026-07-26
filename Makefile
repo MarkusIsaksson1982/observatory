@@ -8,10 +8,10 @@ help:
 	@echo "Observatory - Observability Engineering Portfolio"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make up          - Start all services (6 containers)"
+	@echo "  make up          - Start all services (7 containers)"
 	@echo "  make down        - Stop and remove all containers"
 	@echo "  make logs        - Follow all service logs"
-	@echo "  make validate    - Health check all 6 services"
+	@echo "  make validate    - Health check all 7 services"
 	@echo "  make load        - Generate load to populate dashboards (30s burst)"
 	@echo "  make sloth       - Generate SLO rules from sloth spec"
 	@echo "  make lint        - Run all linters"
@@ -47,19 +47,19 @@ logs:
 # Validate stack health
 validate:
 	@echo "Validating stack health..."
-	@curl -sf http://localhost:8000/health >/dev/null && echo "  ✓ Gateway healthy" || (echo "  ✗ Gateway unhealthy"; exit 1)
-	@curl -sf http://localhost:12345/-/healthy >/dev/null && echo "  ✓ Alloy healthy" || (echo "  ✗ Alloy unhealthy"; exit 1)
-	@curl -sf http://localhost:3100/ready >/dev/null && echo "  ✓ Loki healthy" || (echo "  ✗ Loki unhealthy"; exit 1)
-	@curl -sf http://localhost:3200/ready >/dev/null && echo "  ✓ Tempo healthy" || (echo "  ✗ Tempo unhealthy"; exit 1)
-	@curl -sf http://localhost:9009/ready >/dev/null && echo "  ✓ Mimir healthy" || (echo "  ✗ Mimir unhealthy"; exit 1)
-	@curl -sf http://localhost:3000/api/health >/dev/null && echo "  ✓ Grafana healthy" || (echo "  ✗ Grafana unhealthy"; exit 1)
-	@echo "All 6 services healthy! ✓"
+	@curl -sf http://localhost:8000/health >/dev/null && echo "  [OK] Gateway healthy" || (echo "  [FAIL] Gateway unhealthy"; exit 1)
+	@curl -sf http://localhost:12345/-/healthy >/dev/null && echo "  [OK] Alloy healthy" || (echo "  [FAIL] Alloy unhealthy"; exit 1)
+	@curl -sf http://localhost:3100/ready >/dev/null && echo "  [OK] Loki healthy" || (echo "  [FAIL] Loki unhealthy"; exit 1)
+	@curl -sf http://localhost:3200/ready >/dev/null && echo "  [OK] Tempo healthy" || (echo "  [FAIL] Tempo unhealthy"; exit 1)
+	@curl -sf http://localhost:9009/ready >/dev/null && echo "  [OK] Mimir healthy" || (echo "  [FAIL] Mimir unhealthy"; exit 1)
+	@curl -sf http://localhost:3000/api/health >/dev/null && echo "  [OK] Grafana healthy" || (echo "  [FAIL] Grafana unhealthy"; exit 1)
+	@echo "All 7 services healthy!"
 
 # Generate traffic to populate dashboards
 load:
 	@echo "Generating load for 30s..."
 	@python tools/load-generator.py --rate 10 --duration 30
-	@echo "Load generation complete! ✓"
+	@echo "Load generation complete!"
 
 # Generate SLO rules using Sloth
 sloth:
@@ -71,7 +71,7 @@ sloth:
 		-i /input/gateway-slo.yaml \
 		-o /input/gateway-slo-rules.yaml \
 		--no-color
-	@echo "Sloth rules generated! ✓"
+	@echo "Sloth rules generated!"
 
 # Linting
 lint:
@@ -81,7 +81,7 @@ lint:
 	@docker run --rm -v ${PWD}:/workdir hadolint/hadolint hadolint apps/gateway/Dockerfile
 	@docker run --rm -v ${PWD}:/workdir -w /workdir hashicorp/terraform:1.9 terraform fmt -check
 	@docker run --rm -v ${PWD}:/workdir -w /workdir cytopia/yamllint yamllint .
-	@echo "All linters passed! ✓"
+	@echo "All linters passed!"
 
 # Clean build artifacts
 clean:

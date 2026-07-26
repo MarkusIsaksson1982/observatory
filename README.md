@@ -12,6 +12,7 @@ flowchart LR
     Tempo[Tempo]
     Mimir[Mimir]
     Grafana[Grafana]
+    Renderer[Renderer]
 
     Gateway -->|OTLP Logs| Alloy
     Gateway ==>|OTLP Traces| Alloy
@@ -25,26 +26,30 @@ flowchart LR
     Loki -->|Read Logs| Grafana
     Tempo ==>|Read Traces| Grafana
     Mimir -.->|Read Metrics| Grafana
+    Renderer -.->|PNG Render| Grafana
 ```
+
+Legend: `-->` logs | `==>` traces | `-.->` metrics/control
 
 Observatory — self-hosted Grafana LGTM stack with OTel instrumentation
 
 ---
 
-## Quick Start (60 seconds)
+## Quick Start (2 minutes)
 
 ```bash
 git clone https://github.com/MarkusIsaksson1982/observatory.git
 cd observatory
 cp .env.example .env
-make up              # Starts Gateway, Alloy, Loki, Tempo, Mimir, Grafana
-cd terraform && terraform apply -auto-approve && cd ..
+make up              # Starts Gateway, Alloy, Loki, Tempo, Mimir, Grafana, Renderer
+cd terraform && terraform init && terraform apply -auto-approve && cd ..
+make load            # Generate traffic to populate dashboards
 ```
 
 Open **http://localhost:3000** (admin/admin) → explore provisioned dashboards.
 
 ```bash
-make validate        # Health check all services
+make validate        # Health check all 7 services
 ```
 
 ---
@@ -71,11 +76,11 @@ make validate        # Health check all services
 
 ### Dashboard Previews
 
-![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate.png)
+![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate.png?raw=true)
 
-![Service Health RED Dashboard](docs/screenshots/service-health-red.png)
+![Service Health RED Dashboard](docs/screenshots/service-health-red.png?raw=true)
 
-![System Overview Dashboard](docs/screenshots/system-overview.png)
+![System Overview Dashboard](docs/screenshots/system-overview.png?raw=true)
 
 ---
 

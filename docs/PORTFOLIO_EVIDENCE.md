@@ -24,7 +24,7 @@
 | # | Job Requirement | Repository Evidence | Exists | Demo | Docs | Tested | Phase |
 |---|-----------------|---------------------|--------|------|------|--------|-------|
 | 1 | Grafana dashboards for performance & system health | `grafana/provisioning/dashboards/service-health-red.json` (6 RED panels), `grafana/provisioning/dashboards/system-overview.json` (5 panels), `grafana/provisioning/dashboards/slo-burn-rate.json` (9 SLO panels) | ✔ | ✔ | ✔ | ✔ | 3 |
-| 2 | LGTM stack integration (Loki, Grafana, Tempo, Mimir) | `docker-compose.yml` (6 services), `alloy/config.river` | ✔ | ✔ | ✔ | ✔ | 1 |
+| 2 | LGTM stack integration (Loki, Grafana, Tempo, Mimir) | `docker-compose.yml` (7 services), `alloy/config.river` | ✔ | ✔ | ✔ | ✔ | 1 |
 | 3 | Loki log aggregation & structured metadata pipelines | `loki/loki.yml`, `alloy/config.river` (loki sink via `otelcol.exporter.otlphttp`) | ✔ | ✔ | ✔ | ✔ | 1 |
 | 4 | Tempo distributed tracing & native RED metric generation | `tempo/tempo.yml` (metrics_generator enabled, custom dimensions), `alloy/config.river` (tempo sink) | ✔ | ✔ | ✔ | ✔ | 1 |
 | 5 | Mimir metrics storage & ruler-based alerting | `mimir/mimir.yml` (single-binary), `mimir-rules/tenant-0/gateway-slo-rules.yaml` | ✔ | ✔ | ✔ | ✔ | 1 |
