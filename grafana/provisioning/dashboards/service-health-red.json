@@ -180,7 +180,7 @@
       "gridPos": {
         "x": 0,
         "y": 8,
-        "w": 4,
+        "w": 6,
         "h": 8
       },
       "targets": [
@@ -238,9 +238,9 @@
       "title": "Request Volume by Service",
       "type": "piechart",
       "gridPos": {
-        "x": 4,
+        "x": 6,
         "y": 8,
-        "w": 10,
+        "w": 9,
         "h": 8
       },
       "targets": [
@@ -263,9 +263,9 @@
       "title": "Error Volume by Service",
       "type": "piechart",
       "gridPos": {
-        "x": 14,
+        "x": 15,
         "y": 8,
-        "w": 10,
+        "w": 9,
         "h": 8
       },
       "targets": [

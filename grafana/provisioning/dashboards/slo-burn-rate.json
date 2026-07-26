@@ -60,7 +60,7 @@
       }
     ]
   },
-  "description": "Google SRE-style SLO burn rate and error budget dashboard \u00e2\u20ac\u201d Sloth recording rules",
+  "description": "Google SRE-style SLO burn rate and error budget dashboard \u2014 Sloth recording rules",
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -115,7 +115,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 1
       },
@@ -134,7 +134,7 @@
         "graphMode": "none"
       },
       "title": "Availability",
-      "description": "Current availability = 100 \u00c3\u2014 (1 - error ratio)",
+      "description": "Current availability = 100 \u2014 (1 - error ratio)",
       "type": "stat",
       "targets": [
         {
@@ -182,8 +182,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 6,
+        "w": 7,
+        "x": 5,
         "y": 1
       },
       "id": 2,
@@ -201,7 +201,7 @@
         "graphMode": "area"
       },
       "title": "Error Budget Remaining",
-      "description": "Remaining error budget = 100 \u00c3\u2014 (1 - burn_rate) \u00c3\u2014 SLO target",
+      "description": "Remaining error budget = 100 \u2014 (1 - burn_rate) \u2014 SLO target",
       "type": "stat",
       "targets": [
         {
@@ -252,7 +252,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 7,
         "x": 12,
         "y": 1
       },
@@ -318,8 +318,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 5,
+        "x": 19,
         "y": 1
       },
       "id": 4,
@@ -337,7 +337,7 @@
         "graphMode": "none"
       },
       "title": "SLI (Error %)",
-      "description": "Current error ratio \u00c3\u2014 100",
+      "description": "Current error ratio \u2014 100",
       "type": "stat",
       "targets": [
         {
@@ -451,7 +451,7 @@
           "sort": "desc"
         }
       },
-      "title": "Burn Rate \u00e2\u20ac\u201d Fast Window (5m)",
+      "title": "Burn Rate \u2014 Fast Window (5m)",
       "description": "Short burn rate window. SLO at risk when this exceeds 1.0 for sustained periods",
       "type": "timeseries",
       "targets": [
@@ -554,7 +554,7 @@
           "sort": "desc"
         }
       },
-      "title": "Burn Rate \u00e2\u20ac\u201d Slow Window (30m)",
+      "title": "Burn Rate \u2014 Slow Window (30m)",
       "description": "Longer burn rate window. Alerts fire when both fast and slow windows breach thresholds simultaneously",
       "type": "timeseries",
       "targets": [
@@ -767,7 +767,7 @@
           "sort": "desc"
         }
       },
-      "title": "SLI \u00e2\u20ac\u201d Multi-Window Trend",
+      "title": "SLI \u2014 Multi-Window Trend",
       "description": "Error ratio across multiple time windows. Longer windows smooth short spikes",
       "type": "timeseries",
       "targets": [
