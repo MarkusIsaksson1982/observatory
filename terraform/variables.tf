@@ -35,7 +35,7 @@ variable "organization" {
 variable "mimir_url" {
   description = "Mimir/Prometheus-compatible URL for datasource"
   type        = string
-  default     = "http://mimir:9009"
+  default     = "http://mimir:9009/prometheus"
 }
 
 variable "loki_url" {
