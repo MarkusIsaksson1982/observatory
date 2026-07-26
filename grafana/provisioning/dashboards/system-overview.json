@@ -13,7 +13,7 @@
   },
   "panels": [
     {
-      "title": "Scraped Services",
+      "title": "Infra Self-Monitoring Targets",
       "type": "stat",
       "gridPos": {
         "x": 0,

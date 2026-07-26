@@ -82,6 +82,27 @@ make validate        # Health check all 7 services
 
 ![System Overview Dashboard](docs/screenshots/system-overview-final.png?raw=true)
 
+> **Note:** The Service Map panel in System Overview is empty by design — it requires distributed traces with parent/child span relationships, which a single-service demo doesn't produce. In a real deployment with multiple services calling each other, this panel shows a live service dependency graph.
+
+---
+
+## Generating Traffic
+
+The load generator supports two modes for different demo stories:
+
+```bash
+# Healthy baseline — clean graphs, ~0% error rate
+python tools/load-generator.py --healthy --rate 10 --duration 60
+
+# Fault injection — errors, latency spikes, SLO burn
+python tools/fault-injector.py --rate 5 --duration 300
+```
+
+**For dashboard screenshots:**
+1. Run `--healthy` traffic first for a clean baseline (RED dashboard shows steady traffic, no errors)
+2. Run fault injector for 30+ minutes while capturing SLO dashboard (shows burn rate spike against healthy baseline)
+3. The contrast between the two stories is the point — not a permanent 70% error floor
+
 ---
 
 ## SLO Targets (Live in Mimir)

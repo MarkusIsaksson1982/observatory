@@ -15,6 +15,8 @@ Usage:
   python load-generator.py --rate 5 --duration 30
   python load-generator.py --rate 20 --duration 300 --error-rate 0.2
   python load-generator.py --gateway http://192.168.1.100:8000
+  python load-generator.py --healthy           # baseline: /health + /fibonacci only
+  python load-generator.py --healthy --rate 5 --duration 60
 """
 import json
 import os
@@ -40,6 +42,11 @@ ENDPOINTS = [
     ("GET",  "/payments",       None,    "fast",    0.05),
     ("POST", "/checkout",       "{}",   "medium",   0.15),
     ("GET",  "/fibonacci",      None,    "slow",    0.08),
+]
+
+HEALTHY_ENDPOINTS = [
+    ("GET",  "/health",         None,    "fast",    0.01),
+    ("GET",  "/fibonacci?n=10", None,    "slow",    0.08),
 ]
 
 HEAVY_ENDPOINTS = [
@@ -175,32 +182,38 @@ class SlidingWindowRateLimiter:
 def generate_load(state: LoadGeneratorState, gateway_url: str,
                   rate: float, duration: float,
                   error_rate: float = 0.12,
-                  heavy_pct: float = 0.25) -> None:
+                  heavy_pct: float = 0.25,
+                  healthy_only: bool = False) -> None:
     """Main load generation loop."""
     limiter = SlidingWindowRateLimiter(rate)
     end_time = time.monotonic() + duration
     thread_pool_size = min(rate * 2, 50) if rate <= 20 else 50
     thread_pool = []
 
+    endpoints = HEALTHY_ENDPOINTS if healthy_only else ENDPOINTS
+    heavy_endpoints = HEALTHY_ENDPOINTS if healthy_only else HEAVY_ENDPOINTS
+    effective_error_rate = 0.0 if healthy_only else error_rate
+
+    mode = "healthy" if healthy_only else "mixed"
     print(f"{Colors.GREEN}  [>>>] Generating load at {rate:.1f} req/s for {duration}s")
     print(f"        Gateway: {gateway_url}")
-    print(f"        Threads: {thread_pool_size}  Error rate: {error_rate*100:.0f}%")
-    print(f"        Heavy endpoint mix: {heavy_pct*100:.0f}%{Colors.RESET}\n")
+    print(f"        Threads: {thread_pool_size}  Error rate: {effective_error_rate*100:.0f}%")
+    print(f"        Mode: {mode}  Heavy endpoint mix: {heavy_pct*100:.0f}%{Colors.RESET}\n")
 
     while state.running and time.monotonic() < end_time:
         limiter.wait()
 
         # Pick endpoint: heavy_pct chance for slow endpoints
         if random.random() < heavy_pct:
-            endpoint = random.choice(HEAVY_ENDPOINTS)
+            endpoint = random.choice(heavy_endpoints)
         else:
-            endpoint = random.choice(ENDPOINTS)
+            endpoint = random.choice(endpoints)
 
         method, path, payload, _, _ = endpoint
 
         # Error injection: send malformed payloads sometimes
         actual_payload = payload
-        if error_rate > 0 and random.random() < error_rate:
+        if effective_error_rate > 0 and random.random() < effective_error_rate:
             if method == "POST":
                 actual_payload = json.dumps({"invalid": "injected"})
             # Also inject random order_id to trigger 404s
@@ -281,6 +294,7 @@ def parse_args():
         "duration": DEFAULT_DURATION,
         "error-rate": DEFAULT_ERROR_RATE,
         "heavy-pct": 0.25,
+        "healthy": False,
         "color": True,
     }
 
@@ -303,6 +317,9 @@ def parse_args():
         elif arg == "--heavy-pct" and i + 1 < len(sys.argv):
             args["heavy-pct"] = float(sys.argv[i + 1])
             i += 2
+        elif arg == "--healthy":
+            args["healthy"] = True
+            i += 1
         elif arg == "--no-color":
             args["color"] = False
             i += 1
@@ -380,6 +397,7 @@ def main() -> int:
             duration=args["duration"],
             error_rate=args["error-rate"],
             heavy_pct=args["heavy-pct"],
+            healthy_only=args["healthy"],
         )
     except KeyboardInterrupt:
         shutdown_handler()
