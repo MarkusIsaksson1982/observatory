@@ -138,7 +138,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "100 * (1 - slo:sli_error:ratio_rate5m{sloth_service=\"${VAR_SLO}\"})",
+          "expr": "100 * (1 - slo:sli_error:ratio_rate5m{sloth_service=\"${VAR_SLO}\", sloth_slo=\"requests-availability\"})",
           "legendFormat": "Availability",
           "refId": "A",
           "datasource": {
@@ -208,7 +208,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\", sloth_window=\"5m\"}",
+          "expr": "slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\", sloth_window=\"5m\", sloth_slo=\"requests-availability\"}",
           "legendFormat": "Burn Rate",
           "refId": "A",
           "datasource": {
@@ -274,7 +274,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "slo:sli_error:ratio_rate5m{sloth_service=\"${VAR_SLO}\"} * 100",
+          "expr": "slo:sli_error:ratio_rate5m{sloth_service=\"${VAR_SLO}\", sloth_slo=\"requests-availability\"} * 100",
           "legendFormat": "Error %",
           "refId": "A",
           "datasource": {
