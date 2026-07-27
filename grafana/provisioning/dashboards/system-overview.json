@@ -115,6 +115,7 @@
     },
     {
       "title": "Service Map",
+      "description": "Empty by design — single real service (gateway) with fault-injection targets. Tempo requires both client and server spans to draw edges.",
       "type": "nodeGraph",
       "gridPos": {
         "x": 12,
