@@ -138,7 +138,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "100 * max(0, 1 - slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\", sloth_window=\"5m\"}) or vector(100)",
+          "expr": "100 * (1 - slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\"})",
           "legendFormat": "Availability",
           "refId": "A",
           "datasource": {
@@ -205,7 +205,7 @@
       "type": "stat",
       "targets": [
         {
-          "expr": "100 * max(0, 1 - slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\", sloth_window=\"5m\"})",
+          "expr": "100 * (1 - slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\"})",
           "legendFormat": "Budget %",
           "refId": "A",
           "datasource": {

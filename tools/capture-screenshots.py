@@ -15,12 +15,11 @@ Usage:
 """
 import argparse
 import os
-import signal
 import subprocess
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(SCRIPT_DIR)
@@ -80,7 +79,7 @@ def capture_screenshot(dashboard_uid, output_path, width=1200, height=600, time_
                 f.write(data)
             print(f"    {output_path} ({len(data)} bytes)")
             return True
-    except Exception as e:
+    except (urllib.error.URLError, OSError) as e:
         print(f"    {output_path} FAILED: {e}")
         return False
 
@@ -99,7 +98,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Print commands without executing")
     args = parser.parse_args()
 
-    print(f"\n  Observatory Screenshot Capture")
+    print("\n  Observatory Screenshot Capture")
     print(f"  {'='*40}")
     print(f"  Burn duration:  {args.burn_minutes} minutes")
     print(f"  Inject rate:    {args.inject_rate} req/s")
@@ -114,7 +113,7 @@ def main():
         print(f"    2. sleep {args.burn_minutes * 60}")
         for uid, path in DASHBOARDS:
             print(f"    3. capture {uid} -> {path}")
-        print(f"    4. kill fault-injector")
+        print("    4. kill fault-injector")
         return 0
 
     # Step 1: Start fault injector
