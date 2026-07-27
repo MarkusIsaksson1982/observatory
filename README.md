@@ -82,11 +82,11 @@ make validate        # Health check all 7 services
 
 **Service Health RED** — Steady ~5 req/s with ~30% error rate and p99 latency pinned at 10s (sequential downstream timeouts).
 
-![Service Health RED Dashboard — Baseline](docs/screenshots/service-health-red-baseline.png?raw=true)
+![Service Health RED Dashboard — Active Burn](docs/screenshots/service-health-red-active-burn.png?raw=true)
 
 **System Overview** — Aggregate infrastructure metrics with error budget burn visualization.
 
-![System Overview Dashboard — Baseline](docs/screenshots/system-overview-baseline.png?raw=true)
+![System Overview Dashboard — Active Burn](docs/screenshots/system-overview-active-burn.png?raw=true)
 
 > **Note:** The Service Map panel in System Overview is empty by design — it requires distributed traces with parent/child span relationships, which a single-service demo doesn't produce. In a real deployment with multiple services calling each other, this panel shows a live service dependency graph.
 
