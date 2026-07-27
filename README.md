@@ -71,16 +71,22 @@ make validate        # Health check all 7 services
 ## Key Dashboards (Provisioned)
 
 - **service-health-red** – 6 RED panels: request rate, error rate, latency percentiles, service status, volume.
-- **slo-burn-rate** – 9 SLO panels: availability, error budget, burn rate (5m/30m), multi-window SLI trend, SLO inventory table.
+- **slo-burn-rate** – SLO burn-rate dashboard: Availability (%), Burn Rate (multiplier), SLI Error %, fast window (5m), slow window (30m).
 - **system-overview** – High-level health, aggregate request rate, error budget burn, log volume, Tempo service map.
 
 ### Dashboard Previews
 
-![SLO Burn-Rate Dashboard](docs/screenshots/slo-burn-rate-active-burn.png?raw=true)
+**SLO Burn Rate** — Under injected fault conditions, measured availability dropped to ~70% (from a 99.9% SLO target). The burn rate is ~300x the acceptable rate, with ~30% of requests failing. Both fast (5m) and slow (30m) windows confirm the sustained burn.
 
-![Service Health RED Dashboard](docs/screenshots/service-health-red-baseline.png?raw=true)
+![SLO Burn Rate Dashboard — Active Burn](docs/screenshots/slo-burn-rate-active-burn.png?raw=true)
 
-![System Overview Dashboard](docs/screenshots/system-overview-baseline.png?raw=true)
+**Service Health RED** — Steady ~5 req/s with ~30% error rate and p99 latency pinned at 10s (sequential downstream timeouts).
+
+![Service Health RED Dashboard — Baseline](docs/screenshots/service-health-red-baseline.png?raw=true)
+
+**System Overview** — Aggregate infrastructure metrics with error budget burn visualization.
+
+![System Overview Dashboard — Baseline](docs/screenshots/system-overview-baseline.png?raw=true)
 
 > **Note:** The Service Map panel in System Overview is empty by design — it requires distributed traces with parent/child span relationships, which a single-service demo doesn't produce. In a real deployment with multiple services calling each other, this panel shows a live service dependency graph.
 

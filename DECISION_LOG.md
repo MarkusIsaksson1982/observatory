@@ -7,13 +7,13 @@
 ## 2026-07-25
 
 **Decision:** P99 latency alert metric corrected from `traces_spanmetrics_duration_milliseconds_bucket` to `traces_spanmetrics_latency_bucket`.
-**Reason:** GLM-5.2 static analysis caught the mismatch. alerts.tf queried a non-existent metric (leftover from an earlier naming assumption). The actual Tempo metric is `traces_spanmetrics_latency_bucket` (confirmed by dashboard queries and Sloth rules). The alert would never fire. Also corrected legend from "ms" to "s" since the metric is in seconds.
+**Reason:** Static analysis caught the mismatch. alerts.tf queried a non-existent metric (leftover from an earlier naming assumption). The actual Tempo metric is `traces_spanmetrics_latency_bucket` (confirmed by dashboard queries and Sloth rules). The alert would never fire. Also corrected legend from "ms" to "s" since the metric is in seconds.
 
 **Decision:** SLO latency error_query inverted to correctly compute slow requests.
-**Reason:** GLM-5.2 found that `error_query` used `le="0.5"` (fast requests ≤500ms) as "errors." In Sloth's events SLI, error_query must return bad events. The ratio was always 1.0 (fast/total ≈ 1.0 under normal load), so the SLO never burned. Fixed: `error_query = total_count - bucket{le="0.5"}` = slow requests. Sloth rules regenerated (v0.16.0). Terraform apply pending (Docker Desktop offline).
+**Reason:** Review found that `error_query` used `le="0.5"` (fast requests ≤500ms) as "errors." In Sloth's events SLI, error_query must return bad events. The ratio was always 1.0 (fast/total ≈ 1.0 under normal load), so the SLO never burned. Fixed: `error_query = total_count - bucket{le="0.5"}` = slow requests. Sloth rules regenerated (v0.16.0). Terraform apply pending (Docker Desktop offline).
 
 **Decision:** `.env.example` GRAFANA_VERSION updated from 11.1.0 to 13.1.0.
-**Reason:** DeepSeek audit caught the stale pin. docker-compose.yml uses grafana:13.1.0. The example file was never updated after the Grafana version bump.
+**Reason:** Audit caught the stale pin. docker-compose.yml uses grafana:13.1.0. The example file was never updated after the Grafana version bump.
 
 ---
 
@@ -23,10 +23,10 @@
 **Reason:** "Business KPI" dashboard was never built. The actual third dashboard is `system-overview.json` (scraped services, aggregate request rate, log volume, service map). Keeping a phantom genre would mislead recruiters.
 
 **Decision:** PLAYBOOK.md: Ansible interview answer now cites `DECISION_LOG.md` instead of ADR-009.
-**Reason:** ADR-009 is about dashboard provisioning (YAML vs Terraform), not Ansible. GLM-5.2 caught the citation mismatch. Ansible is a tooling decision, not an architectural decision — `DECISION_LOG.md` is the correct reference.
+**Reason:** ADR-009 is about dashboard provisioning (YAML vs Terraform), not Ansible. Review caught the citation mismatch. Ansible is a tooling decision, not an architectural decision — `DECISION_LOG.md` is the correct reference.
 
 **Decision:** COLLABORATION.md: Model Role Assignments table rebuilt from actual 7-round track record.
-**Reason:** Old table was carried from the turn-one template and did not reflect actual contributions. Gemini earned A ratings across 4 rounds (dashboard audit, architecture diagram, deployer guide, Alloy cleanup). DeepSeek earned A/A- for consistency auditing and code hardening. Neither is "weaker" or "least practical."
+**Reason:** Old table was carried from the turn-one template and did not reflect actual contributions. The primary planning model earned A ratings across 4 rounds (dashboard audit, architecture diagram, deployer guide, Alloy cleanup). The secondary analysis model earned A/A- for consistency auditing and code hardening.
 
 **Decision:** G1 (Alloy spanmetrics vs Tempo) and G3 (publication readiness) marked as RESOLVED in COLLABORATION.md.
 **Reason:** G1 resolved by ADR-011 (tempo metrics-generator accepted, Alloy spanmetrics removed). G3 resolved by CURRENT_STATE.md (all documentation current, fresh clone reproducibility verified).
@@ -36,29 +36,29 @@
 ## 2026-07-23
 
 **Decision:** Qwen's fault injector integrated as-is — no gateway code changes needed.
-**Reason:** Empirical check of `/orders` span in Tempo confirmed `STATUS_CODE_ERROR` is already set automatically. The `httpx.ConnectError` propagates through `span.record_exception(e)` at `main.py:116`, flipping the span to ERROR before `HTTPException(503)` is raised. FastAPI auto-instrumentation captures the exception on the HTTP span. Nemotron's concern about span status not flipping was invalid for this codebase. Zero gateway changes = zero risk to `main.py` (which has hard-won history — SPAN_KIND_SERVER bug, `instrument_app()` fix).
+**Reason:** Empirical check of `/orders` span in Tempo confirmed `STATUS_CODE_ERROR` is already set automatically. The `httpx.ConnectError` propagates through `span.record_exception(e)` at `main.py:116`, flipping the span to ERROR before `HTTPException(503)` is raised. FastAPI auto-instrumentation captures the exception on the HTTP span. Concerns about span status not flipping were invalid for this codebase. Zero gateway changes = zero risk to `main.py` (which has hard-won history — SPAN_KIND_SERVER bug, `instrument_app()` fix).
 **Reference:** Tempo trace inspection (`/api/traces/{traceID}`), span `status.code = STATUS_CODE_ERROR` confirmed
-**Impact:** `tools/fault-injector.py` placed from Qwen's contribution. Old `ansible/fault-injector.yml` (which fabricated error responses instead of generating real failure traffic) removed. `--probe-only` mode verified working.
+**Impact:** `tools/fault-injector.py` placed from the contribution. Old `ansible/fault-injector.yml` (which fabricated error responses instead of generating real failure traffic) removed. `--probe-only` mode verified working.
 
 ---
 
-**Decision:** Gemini's Alloy cleanup applied — dead spanmetrics connector removed.
-**Reason:** `otelcol.connector.spanmetrics` had `output { metrics = [] }` (disabled per ADR-011), making the entire branch dead code: the `keep_keys` transform processor that fed it, the connector itself, and the orphaned `otelcol.exporter.prometheus "default"` (defined but never referenced). Scrape blocks already wire directly to `prometheus.remote_write.mimir.receiver` — confirmed live, not completed by Gemini's change. ADR-011 preserves the historical context. `config.river` reduced from 160 to 107 lines.
-**Reference:** Gemini 3.1 Pro contribution (Option 3: Dead code review), Claude Sonnet 5 verification that scrape blocks were already wired
+**Decision:** Alloy cleanup applied — dead spanmetrics connector removed.
+**Reason:** `otelcol.connector.spanmetrics` had `output { metrics = [] }` (disabled per ADR-011), making the entire branch dead code: the `keep_keys` transform processor that fed it, the connector itself, and the orphaned `otelcol.exporter.prometheus "default"` (defined but never referenced). Scrape blocks already wire directly to `prometheus.remote_write.mimir.receiver` — confirmed live, not completed by the change. ADR-011 preserves the historical context. `config.river` reduced from 160 to 107 lines.
+**Reference:** Dead code review (Option 3), primary planning model verification that scrape blocks were already wired
 **Impact:** `alloy/config.river` cleaned. Alloy restarted, healthy. Traces verified flowing post-cleanup.
 
 ---
 
-**Decision:** Ansible implemented from Muse Spark's contribution — Grafana version fixed.
-**Reason:** Muse Spark was the only Ansible contribution that addressed both concerns the prompt named (host provisioning + env-specific config templating) and showed awareness that Terraform now owns Grafana provisioning (`terraform plan still 0/0/0` in its README). DeepSeek, GLM-5.2, and Mistral-Vibe all wrote "install Docker, run compose up" without env templating. One bug fixed: `group_vars/all.yml` pinned `grafana_version: "11.1.0"` but `docker-compose.yml` runs `grafana/grafana:13.1.0` — corrected before implementation. `failed_when: false` on Docker service task signals awareness of running inside containers.
-**Reference:** Muse Spark contribution, Claude Sonnet 5 triage
+**Decision:** Ansible implemented from a model contribution — Grafana version fixed.
+**Reason:** The contribution was the only one that addressed both concerns the prompt named (host provisioning + env-specific config templating) and showed awareness that Terraform now owns Grafana provisioning (`terraform plan still 0/0/0` in its README). Other models all wrote "install Docker, run compose up" without env templating. One bug fixed: `group_vars/all.yml` pinned `grafana_version: "11.1.0"` but `docker-compose.yml` runs `grafana/grafana:13.1.0` — corrected before implementation. `failed_when: false` on Docker service task signals awareness of running inside containers.
+**Reference:** Model contribution, primary planning model triage
 **Impact:** Full Ansible structure implemented: `ansible.cfg`, `inventory.ini`, `group_vars/all.yml`, `templates/env.j2`, `templates/docker-compose.override.yml.j2`, `playbook.yml`, `README.md`. Old `setup.yml` removed. YAML syntax validated.
 
 ---
 
 **Decision:** Deployer-guide.md corrected — `make validate` does not run correlation script.
-**Reason:** DeepSeek flagged that `deployer-guide.md` claims `make validate` runs `scripts/validate_trace_log_correlation.py`, but the Makefile's actual `validate` target only does health checks via curl (Alloy + Gateway). Verified: deployer-guide.md was misleading. Corrected to document both `make validate` (health checks) and the separate `python scripts/validate_trace_log_correlation.py` command.
-**Reference:** DeepSeek contribution, Makefile inspection
+**Reason:** Review flagged that `deployer-guide.md` claims `make validate` runs `scripts/validate_trace_log_correlation.py`, but the Makefile's actual `validate` target only does health checks via curl (Alloy + Gateway). Verified: deployer-guide.md was misleading. Corrected to document both `make validate` (health checks) and the separate `python scripts/validate_trace_log_correlation.py` command.
+**Reference:** Review contribution, Makefile inspection
 **Impact:** `docs/deployer-guide.md` corrected.
 
 ---
@@ -116,8 +116,8 @@
 
 ## 2026-07-19
 
-**Decision:** Switch from Nemotron to Big Pickle as primary implementer, Claude Sonnet 5 as senior planner.
-**Reason:** Nemotron buried a missing config file under governance docs and never produced a running container. Big Pickle's Task B session was the only one where the stated goal was actually met. Claude Sonnet 5 has the full architectural vision and ecosystem knowledge.
+**Decision:** Switch from an earlier model to Big Pickle as primary implementer, Claude Sonnet 5 as senior planner.
+**Reason:** The earlier model buried a missing config file under governance docs and never produced a running container. Big Pickle's Task B session was the only one where the stated goal was actually met. Claude Sonnet 5 has the full architectural vision and ecosystem knowledge.
 **Reference:** Model comparison results (Task A + Task B)
 **Impact:** Three-model workflow: Claude (planner) → ChatGPT (interim planner) → Big Pickle (implementer)
 
@@ -153,7 +153,7 @@
 
 **Decision:** Create AI Execution Roadmap as the single source of truth for project planning.
 **Reason:** Multiple models produced analyses but no unified plan. The roadmap consolidates version blocks, metadata, decision classes, and model role assignments.
-**Reference:** ChatGPT's AI Execution Roadmap concept, Gemini's JSON roadmap, Grok's milestones
+**Reference:** AI Execution Roadmap concept, JSON roadmap, milestones
 **Impact:** All hand-offs reference this document
 
 ---
@@ -201,7 +201,7 @@
 ---
 
 **Decision:** OTLP-to-Loki label mapping requires `otelcol.processor.attributes` hint step.
-**Reason:** `otelcol.exporter.loki` does NOT convert OTLP resource attributes to Loki labels by default — needs special hint attributes (`loki.resource.labels`, `loki.attribute.labels`). GLM-5.2 was wrong about deprecation but right about the underlying label concern. This blocks v0.2.0 acceptance criteria (`{service="gateway"}` returning data).
+**Reason:** `otelcol.exporter.loki` does NOT convert OTLP resource attributes to Loki labels by default — needs special hint attributes (`loki.resource.labels`, `loki.attribute.labels`). Review was wrong about deprecation but right about the underlying label concern. This blocks v0.2.0 acceptance criteria (`{service="gateway"}` returning data).
 **Reference:** Claude Sonnet 5 ecosystem knowledge check, otelcol.exporter.loki documentation
 **Impact:** First concrete task for v0.2.0: add processor attributes block to alloy/config.river
 
@@ -215,8 +215,8 @@
 ---
 
 **Decision:** Fix loki.resource.labels hint — use `value` (key-list string), not `from_attribute` (value copy).
-**Reason:** Initial config used `from_attribute = "service.name"` which copies the VALUE of service.name (e.g., "gateway") into a label called `loki.resource.labels`. The otelcol.exporter.loki docs show `value = "service.name,service.namespace"` — a comma-separated string of attribute NAMES to promote. hy3-free model flagged this semantic inversion; confirmed against Grafana docs.
-**Reference:** hy3-free analysis, otelcol.exporter.loki documentation examples
+**Reason:** Initial config used `from_attribute = "service.name"` which copies the VALUE of service.name (e.g., "gateway") into a label called `loki.resource.labels`. The otelcol.exporter.loki docs show `value = "service.name,service.namespace"` — a comma-separated string of attribute NAMES to promote. Review flagged this semantic inversion; confirmed against Grafana docs.
+**Reference:** Review analysis, otelcol.exporter.loki documentation examples
 **Impact:** Config corrected from `from_attribute` to `value`. Without this fix, `{service_name="gateway"}` would return empty results.
 
 ---
@@ -301,3 +301,22 @@
 ---
 
 *This log is maintained by Big Pickle (opencode). Major decisions are recorded here; formal ADRs are in `ADR/`.*
+
+---
+
+## AI Model Credits
+
+This project used multiple AI models for planning, analysis, implementation, and review. Contributions are listed in descending order of significance.
+
+| Model | Role | Key Contributions |
+|-------|------|-------------------|
+| **Claude Sonnet 5** | Primary planner / architect | Full architectural vision, ecosystem knowledge, ADR framework, SLO design, multi-window burn-rate math, publication readiness criteria |
+| **Big Pickle** (OpenCode) | Primary implementer | End-to-end implementation, Docker/Terraform/Grafana provisioning, dashboard JSON, screenshot automation, CI pipeline, all code changes |
+| **DeepSeek** | Consistency auditor | Code hardening, metric validation, documentation review, SLO query verification across 10+ review rounds |
+| **Gemini** | Architecture reviewer | Dashboard audit, architecture diagram, deployer guide, dead code review, visual verification of screenshots |
+| **Qwen** | Analysis model | Fault injector design, SLO burn-rate analysis, multi-model verification passes |
+| **ChatGPT** | Interim planner | AI Execution Roadmap concept, early project planning |
+| **GLM-5.2** | Static analysis | Metric name validation, label verification, documentation citation checks |
+| **Muse Spark** | Ansible contributor | Host provisioning + env-specific config templating |
+| **Nemotron** | Early model | Initial project scaffolding (replaced after governance gaps) |
+| **hy3-free** | Config reviewer | Loki label mapping analysis, otelcol.exporter.loki documentation verification |
