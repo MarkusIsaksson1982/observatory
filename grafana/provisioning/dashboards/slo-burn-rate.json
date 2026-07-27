@@ -559,8 +559,8 @@
       "type": "timeseries",
       "targets": [
         {
-          "expr": "slo:current_burn_rate:ratio{sloth_service=\"${VAR_SLO}\", sloth_window=\"30m\"}",
-          "legendFormat": "30m burn rate",
+          "expr": "slo:sli_error:ratio_rate30m{sloth_service=\"${VAR_SLO}\"}",
+          "legendFormat": "30m error ratio",
           "refId": "A",
           "datasource": {
             "type": "prometheus",
