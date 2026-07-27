@@ -50,7 +50,6 @@ Plus a **before/after redesign case study** with written rationale per change �
 | **Ansible** | `ansible/playbook.yml`, `ansible/group_vars/all.yml` — host provisioning with Jinja2 templating |
 | **Dashboard as Code** | Terraform `grafana_dashboard` resources, CI validation |
 | **Consumer Onboarding** | `docs/onboarding-guide.md` — 15-min timed runbook |
-| **Training** | `training/01-05` — metrics, logs, traces, correlation, OTel basics |
 | **Incident Practice** | `references/PLAYBOOK.md` — 5 scripted demo scenarios with interview Q&A |
 | **Documentation** | ADRs, runbooks, stakeholder briefs, architecture fitness checklist |
 
