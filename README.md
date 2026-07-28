@@ -80,7 +80,7 @@ make validate        # Health check all 7 services
 
 ![SLO Burn Rate Dashboard — Active Burn](docs/screenshots/slo-burn-rate-active-burn.png?raw=true)
 
-**Service Health RED** — Steady ~5 req/s with ~30% error rate and p99 latency pinned at 10s (sequential downstream timeouts).
+**Service Health RED** — Steady ~5 req/s with ~30% error rate and p99 latency pinned at 10s (sequential downstream timeouts). The RED Error Rate panel (~25% visually in the 5m rate window) and the SLO SLI Error % stat (~29-30% over 30m) both use the same `status_code="STATUS_CODE_ERROR"` definition — the gap is a 5m rate vs 30m average, not a measurement mismatch.
 
 ![Service Health RED Dashboard — Active Burn](docs/screenshots/service-health-red-active-burn.png?raw=true)
 
@@ -138,7 +138,7 @@ python tools/fault-injector.py --rate 5 --duration 300
 
 ## Tools
 
-- **`tools/load-generator.py`** – Zero-dependency Python load generator for populating dashboards. Rate limiting, error injection, Ctrl+C graceful shutdown. `python tools/load-generator.py --rate 10 --duration 120`
+- **`tools/load-generator.py`** – Zero-dependency Python load generator for populating dashboards. Supports healthy-baseline mode (`--healthy`) and error injection. Rate limiting, class-based endpoint weighting, Ctrl+C graceful shutdown. `python tools/load-generator.py --rate 10 --duration 120`
 - **`tools/fault-injector.py`** – Generates controlled failure traffic against `/orders` to drive SLO burn-rate alerting and populate the burn-rate dashboard. `python tools/fault-injector.py --probe-only` (verify 503) or `python tools/fault-injector.py --duration 300 --rate 10 --error-ratio 0.3`
 
 ---
