@@ -61,6 +61,6 @@ We need a strategy that enables trace→logs correlation without cardinality exp
 ## References
 
 - [Loki Label Best Practices](https://grafana.com/docs/loki/latest/best-practices/)
-- [OTel Log Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/logs/)
+- [OTel Log Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/general/logs/)
 - [otelcol.exporter.loki documentation](https://grafana.com/docs/alloy/latest/reference/components/otelcol.exporter.loki/)
 - AI Execution Roadmap, ADR-009

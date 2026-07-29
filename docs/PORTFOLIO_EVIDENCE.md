@@ -23,7 +23,7 @@
 
 | # | Job Requirement | Repository Evidence | Exists | Demo | Docs | Tested | Phase |
 |---|-----------------|---------------------|--------|------|------|--------|-------|
-| 1 | Grafana dashboards for performance & system health | `grafana/provisioning/dashboards/service-health-red.json` (6 RED panels), `grafana/provisioning/dashboards/system-overview.json` (5 panels), `grafana/provisioning/dashboards/slo-burn-rate.json` (9 SLO panels) | ✔ | ✔ | ✔ | ✔ | 3 |
+| 1 | Grafana dashboards for performance & system health | `grafana/provisioning/dashboards/service-health-red.json` (6 RED panels), `grafana/provisioning/dashboards/system-overview.json` (5 panels), `grafana/provisioning/dashboards/slo-burn-rate.json` (8 SLO panels) | ✔ | ✔ | ✔ | ✔ | 3 |
 | 2 | LGTM stack integration (Loki, Grafana, Tempo, Mimir) | `docker-compose.yml` (7 services), `alloy/config.river` | ✔ | ✔ | ✔ | ✔ | 1 |
 | 3 | Loki log aggregation & structured metadata pipelines | `loki/loki.yml`, `alloy/config.river` (loki sink via `otelcol.exporter.otlphttp`) | ✔ | ✔ | ✔ | ✔ | 1 |
 | 4 | Tempo distributed tracing & native RED metric generation | `tempo/tempo.yml` (metrics_generator enabled, custom dimensions), `alloy/config.river` (tempo sink) | ✔ | ✔ | ✔ | ✔ | 1 |
@@ -37,10 +37,8 @@
 | 12 | Observability as a practice (not just tools) | `DECISION_LOG.md`, `alloy/config.river` (low cardinality enforcement) | ✔ | ✔ | ✔ | ✔ | 4,6 |
 | 13 | Terraform (Grafana provider) | `terraform/dashboards.tf`, `terraform/datasources.tf`, `terraform/alerts.tf` | ✔ | ✔ | ✔ | ✔ | 5 |
 | 14 | Ansible (host bootstrap) | `ansible/playbook.yml`, `ansible/group_vars/all.yml` | ✔ | ✔ | ✔ | ✔ | 5 |
-| 15 | Dashboard design principles (before/after case study) | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 3 |
-| 16 | Consumer onboarding / handholding | `docs/onboarding-guide.md` | ✔ | ✔ | ✔ | ✔ | 6 |
-| 17 | Training sessions | *Planned: v1.0.0* | ☐ | ☐ | ☐ | ☐ | 6 |
-| 18 | Load testing & fault injection | `tools/load-generator.py` (zero-dep, rate-limited), `tools/fault-injector.py` (SLO burn-rate, probe-only mode) | ✔ | ✔ | ✔ | ✔ | 2 |
+| 15 | Consumer onboarding / handholding | `docs/onboarding-guide.md` | ✔ | ✔ | ✔ | ✔ | 6 |
+| 16 | Load testing & fault injection | `tools/load-generator.py` (zero-dep, rate-limited), `tools/fault-injector.py` (SLO burn-rate, probe-only mode) | ✔ | ✔ | ✔ | ✔ | 2 |
 
 ---
 
@@ -129,8 +127,6 @@
 | `tools/load-generator.py` + `tools/fault-injector.py` — Zero-dep Python load testing | v0.6.0 | Done |
 | `docs/onboarding-guide.md` — 15-min timed runbook | v0.6.0 | Done |
 | `sloth/` — Multi-window multi-burn-rate SLO alerting | v0.4.0 | Done |
-| Dashboard screenshots (PNG) via Grafana Image Renderer | v1.0.0 | In progress |
+| Dashboard screenshots (PNG) via Grafana Image Renderer | v1.0.0 | Done |
 
 ---
-
-*Update per phase. Commit with `docs: update evidence map — <row> <dimension> to ✔`*

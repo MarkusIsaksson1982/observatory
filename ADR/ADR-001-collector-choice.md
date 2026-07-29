@@ -41,4 +41,4 @@ Options:
 ## References
 
 - [Grafana Alloy Documentation](https://grafana.com/docs/alloy/)
-- [Grafana Agent EOL Announcement](https://grafana.com/blog/2024/11/01/grafana-agent-end-of-life/)
+- [Grafana Agent EOL Notice](https://grafana.com/docs/agent/latest/)
