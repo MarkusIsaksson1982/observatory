@@ -29,7 +29,7 @@ resource "grafana_rule_group" "observatory_gateway" {
 
   rule {
     name      = "Gateway High Error Rate"
-    condition = "A"
+    condition = "C"
 
     exec_err_state = "Error"
     no_data_state  = "OK"
@@ -61,6 +61,7 @@ resource "grafana_rule_group" "observatory_gateway" {
         legendFormat   = "Error rate %"
         intervalMs     = 15000
         maxDataPoints  = 400
+        queryType      = "timeSeriesQuery"
       })
 
       relative_time_range {
@@ -68,11 +69,52 @@ resource "grafana_rule_group" "observatory_gateway" {
         to   = 0
       }
     }
+
+    data {
+      ref_id         = "B"
+      datasource_uid = "__expr__"
+      model = jsonencode({
+        refId      = "B"
+        type       = "reduce"
+        expression = "A"
+        reducer    = "last"
+      })
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
+    }
+
+    data {
+      ref_id         = "C"
+      datasource_uid = "__expr__"
+      model = jsonencode({
+        refId      = "C"
+        type       = "threshold"
+        expression = "B"
+        conditions = [
+          {
+            evaluator = {
+              type   = "gt"
+              params = [1]
+            }
+            query = {
+              params = ["C"]
+            }
+            type = "query"
+          }
+        ]
+      })
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
+    }
   }
 
   rule {
     name      = "Gateway High P99 Latency"
-    condition = "A"
+    condition = "C"
 
     exec_err_state = "Error"
     no_data_state  = "OK"
@@ -103,10 +145,52 @@ resource "grafana_rule_group" "observatory_gateway" {
         legendFormat   = "P99 latency s"
         intervalMs     = 15000
         maxDataPoints  = 400
+        queryType      = "timeSeriesQuery"
       })
 
       relative_time_range {
         from = 300
+        to   = 0
+      }
+    }
+
+    data {
+      ref_id         = "B"
+      datasource_uid = "__expr__"
+      model = jsonencode({
+        refId      = "B"
+        type       = "reduce"
+        expression = "A"
+        reducer    = "last"
+      })
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
+    }
+
+    data {
+      ref_id         = "C"
+      datasource_uid = "__expr__"
+      model = jsonencode({
+        refId      = "C"
+        type       = "threshold"
+        expression = "B"
+        conditions = [
+          {
+            evaluator = {
+              type   = "gt"
+              params = [0.5]
+            }
+            query = {
+              params = ["C"]
+            }
+            type = "query"
+          }
+        ]
+      })
+      relative_time_range {
+        from = 0
         to   = 0
       }
     }
